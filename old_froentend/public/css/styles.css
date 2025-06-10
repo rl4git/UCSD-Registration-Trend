@@ -1,0 +1,91 @@
+.page-header {
+    font-family: "Georgia", "Times New Roman", serif; /* Similar to the UCSD style */
+    font-size: 2em; /* Adjust size to match */
+    /* font-weight: bold; */
+    color: #042b50; /* UC San Diego navy blue color */
+    text-align: left;
+    padding: 20px 0;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #FFC72C; /* Golden yellow line similar to the UCSD style */
+    margin-left: 20px; /* Align header to the left */
+}
+
+/* 大容器，用于包裹所有输入框、开关和按钮 */
+.course-tab {
+    margin: 0 auto;    /* 居中对齐 */
+    align-items: center;
+    padding: 7px;
+    max-width: 1200px; /* 设置最大宽度 */
+}
+
+/* Add Course 和 Switch Charts 按钮 */
+.button-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 20px auto;
+}
+
+#add-course-btn,
+#ratio-display-btn {
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    background-color: #3b5998;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#add-course-btn:hover,
+#ratio-display-btn:hover {
+    background-color: #2a4175;
+}
+
+
+.line-chart-container {
+    margin: 0 auto;    /* 居中对齐 */
+    align-items: center;
+    max-width: 1500px;
+    max-height: 1500px;
+    height: 100%;
+    width: 100%;
+    margin-bottom: 50px; /* Adjust as needed to provide space for the footer */
+}
+
+.chart-note {
+    font-size: 13px;
+    color: #666;
+    margin-top: 2%;
+    margin-left: auto; /* Centers in the container */
+    max-width: 1650px;
+    padding-left: 15px; /* Aligns text with .line-chart-container */
+}
+
+.page-footer {
+    font-family: Arial, sans-serif;
+    font-size: 0.9em;
+    color: #666;
+    background-color: #f1f1f1;
+    text-align: center;
+    padding: 15px 0;
+    border-top: 1px solid #ccc;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+    z-index: 10;
+}
+
+.page-footer p {
+    margin: 5px 0;
+}
+
+
+/* 响应式布局：当屏幕宽度小于600px时，调整为垂直排列 */
+@media (max-width: 600px) {
+    .unit-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}

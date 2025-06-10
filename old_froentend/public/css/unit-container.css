@@ -1,0 +1,204 @@
+/* unit-container.css */
+
+.unit-container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #f9e3d1;
+    padding: 20px;
+    border-radius: 8px;
+    gap: 15px;
+    margin: 0 auto;    /* 居中对齐 */
+}
+
+.triangle-icon {
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 10px solid #333; /* Dark triangle color */
+    margin-right: 5px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.rotate-left {
+    transform: rotate(-90deg); /* Rotate to the left */
+}
+
+/* 输入部分的样式 */
+.input-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* 设置label和输入框的间距 */
+.input-section label {
+    font-weight: bold;
+    color: #333;
+}
+
+/* 输入框和选择框的样式 */
+select, input[type="text"] {
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+
+/* Options部分的样式 */
+.options-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.tab-color-picker {
+    width: 40px;
+    height: 30px;
+    border: none; /* 深灰色边框 */
+    border-radius: 4px; /* 轻微的圆角 */
+    cursor: pointer;
+    box-shadow: inset 0 0 0 10px #dddbdb; /* 内部阴影模拟 padding 颜色 */
+    padding: 1px; /* 内边距，增加点击区域 */
+}
+
+/* Toggle switch 样式 */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 36px;
+    height: 16px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 16px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 12px;
+    width: 12px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #3b5998;
+}
+
+input:checked + .slider:before {
+    transform: translateX(20px);
+}
+
+/* Toggle label 样式 */
+.toggle-label {
+    font-weight: bold;
+    color: #333;
+    font-size: 16px;
+    /* margin-left: 5px; */
+}
+
+
+.toggle-label[data-tooltip] {
+    position: relative;
+    cursor: pointer;
+}
+
+.toggle-label[data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    top: 100%; /* 在 label 下方显示提示 */
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: #fff;
+    padding: 5px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 10;
+    margin-top: 5px; /* 与 label 的间距 */
+}
+
+/* 按钮样式 */
+.btn {
+    background-color: #3b5998;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    padding: 10px 20px;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+    background-color: #2a4175;
+}
+
+
+/* course-professor-tab 隐藏开关样式 Toggle switch with green active state and gray inactive state */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 36px;
+    height: 16px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 16px;
+}
+
+input.line-toggle:checked + .slider {
+    background-color: #4CAF50; /* Green when checked */
+}
+
+input.line-toggle:not(:checked) + .slider {
+    background-color: #e0e0e0; /* Gray-white when unchecked */
+}
+
+
+/* 响应式调整 */
+@media (max-width: 600px) {
+    .input-section, .options-section, .button-section {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+}
