@@ -1,0 +1,67 @@
+{
+  "2024-Winter": {
+    "Prior": "2023-11-13",
+    "First Pass Priorities & Seniors Start": "2023-11-14",
+    "First Pass Juniors Start": "2023-11-16",
+    "First Pass Sophmores Start": "2023-11-17",
+    "First Pass First-Year Start": "2023-11-18",
+    "Second Pass Priorities & Seniors Start": "2023-11-21",
+    "Second Pass Juniors Start": "2023-11-24",
+    "Second Pass Sophmores Start": "2023-11-25",
+    "Second Pass First-Year Start": "2023-11-27",
+    "Quarter Start": "2024-01-04",
+    "A Week After Quarter Start": "2024-01-11"
+  },
+  "2024-Spring": {
+    "Prior": "2024-02-16",
+    "First Pass Priorities & Seniors Start": "2024-02-17",
+    "First Pass Juniors Start": "2024-02-20",
+    "First Pass Sophmores Start": "2024-02-21",
+    "First Pass First-Year Start": "2024-02-22",
+    "Second Pass Priorities & Seniors Start": "2024-02-26",
+    "Second Pass Juniors Start": "2024-02-28",
+    "Second Pass Sophmores Start": "2024-02-29",
+    "Second Pass First-Year Start": "2024-03-01",
+    "Quarter Start": "2024-03-27",
+    "A Week After Quarter Start": "2024-04-04"
+  },
+  "2024-Fall": {
+    "Prior": "2024-05-23",
+    "First Pass Priorities & Seniors Start": "2024-05-24",
+    "First Pass Juniors Start": "2024-05-27",
+    "First Pass Sophmores Start": "2024-05-28",
+    "First Pass First-Year Start": "2024-05-29",
+    "Second Pass Priorities & Seniors Start": "2024-06-01",
+    "Second Pass Juniors Start": "2024-06-04",
+    "Second Pass Sophmores Start": "2024-06-05",
+    "Second Pass First-Year Start": "2024-06-06",
+    "Quarter Start": "2024-09-23",
+    "A Week After Quarter Start": "2024-09-30"
+  },
+  "2025-Winter": {
+    "Prior": "2024-11-11",
+    "First Pass Priorities & Seniors Start": "2024-11-12",
+    "First Pass Juniors Start": "2024-11-14",
+    "First Pass Sophmores Start": "2024-11-15",
+    "First Pass First-Year Start": "2024-11-16",
+    "Second Pass Priorities & Seniors Start": "2024-11-19",
+    "Second Pass Juniors Start": "2024-11-21",
+    "Second Pass Sophmores Start": "2024-11-22",
+    "Second Pass First-Year Start": "2024-11-23",
+    "Quarter Start": "2025-01-02",
+    "A Week After Quarter Start": "2025-01-18"
+  },
+  "2025-Spring": {
+    "Prior": "2025-02-14",
+    "First Pass Priorities & Seniors Start": "2025-02-15",
+    "First Pass Juniors Start": "2025-02-18",
+    "First Pass Sophmores Start": "2025-02-19",
+    "First Pass First-Year Start": "2025-02-20",
+    "Second Pass Priorities & Seniors Start": "2025-02-24",
+    "Second Pass Juniors Start": "2025-02-26",
+    "Second Pass Sophmores Start": "2025-02-27",
+    "Second Pass First-Year Start": "2025-02-28",
+    "Quarter Start": "2025-03-26",
+    "A Week After Quarter Start": "2025-04-02"
+  }
+}
