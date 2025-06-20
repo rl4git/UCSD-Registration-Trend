@@ -1,0 +1,13 @@
+venv/
+.venv/
+env/
+.env
+.conda/
+conda-meta/
+
+*.log
+*.tmp
+
+.ipynb_checkpoints/
+
+__pycache__/
