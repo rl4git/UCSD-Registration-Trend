@@ -66,3 +66,60 @@
 
    - 在主目录下运行 `./mvnw spring-boot:run` 运行网站
    - 默认端口为 8080，打开浏览器访问 `localhost:8080/hello`，应该能看见 `Hello World!`
+
+### 部署到 EC2 并设置 Nginx 和 Cloudflare
+
+1. 在本地开发环境运行 `./mvnw clean package`，将项目打包为 target/\*.jar 文件
+2. 将这个 jar 文件上传到 EC2，不管是手动上传，SCP，还是 git 都行
+3. 在 EC2，运行 `nohup java -jar 你的jar文件的路径.jar --server.port=8080 > app.log 2>&1 &`，这会让网站泡在后台，端口为 8080，日志输出到当前目录的 app.log
+
+   - 如何停止后台网站进程：
+
+     ```bash
+     # 找到进程ID
+     ps -ef | grep web-backend
+     # 输出类似于 ubuntu   12345   1  0 00:00 ? 00:00:05 java -jar web-backend-0.0.1-SNAPSHOT.jar ...
+     # 其中 12345 就是pid
+
+     kill 12345 # 杀死进程
+     ```
+
+4. `curl localhost:8080/hello` 观察网站是否在运行。
+5. 接下来配置 nginx，本来可以直接监听所有 80 端口的请求，转发到本地的 8080 请求，然而，**由于我们之前已经配置了一个 nginx 监听 8080 的 ucsdregistration.com**请求，直接配置一个新的 nginx 监听所有 80 请求会造成冲突。因此，我决定在 cloduflare 添加一条新的 `api.ucsdregistration.com` 记录，专门用于项目测试。
+6. 创建 Nginx 配置文件 `sudo vim /etc/nginx/sites-available/springboot-hello`
+
+   ```bash
+   server {
+       listen 80;
+       server_name api.ucsdregistration.com; # 转发所有 api.ucsdregistration.com 请求
+
+       location / {
+           proxy_pass http://localhost:8080; # 转发到 Spring Boot 应用的地址
+           proxy_set_header Host $host;
+           proxy_set_header X-Real-IP $remote_addr;
+           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+           proxy_set_header X-Forwarded-Proto $scheme;
+       }
+   }
+   ```
+
+7. 启用配置，并重启 Nginx
+
+   ```bash
+    # 启用配置
+    sudo ln -s /etc/nginx/sites-available/springboot-hello /etc/nginx/sites-enabled/
+
+    # 测试配置文件是否有语法错误
+    sudo nginx -t
+    # 如果显示 "syntax is ok" 和 "test is successful"，则可以重启
+    sudo systemctl restart nginx
+   ```
+
+8. 配置 Cloudlfare
+
+- 添加一条新的 DNS 记录：
+  - 类型：A
+  - 名称：api（只需要填写 api）
+  - 值：EC2 的公网 IP
+
+9. 等待生效，然后访问 `api.ucsdregistration.com/hello`
