@@ -20,6 +20,9 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+### 启动脚本，包含环境变量的设置
+run.sh
+
 ### STS ###
 .apt_generated
 .classpath
