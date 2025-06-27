@@ -1,10 +1,12 @@
 package com.ucsdregistration.web_backend.Service;
 
-import com.ucsdregistration.web_backend.Entity.Course;
+import com.ucsdregistration.web_backend.Entity.*;
+import com.ucsdregistration.web_backend.DTO.*;
 import com.ucsdregistration.web_backend.Repository.CourseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CourseService {
@@ -32,6 +34,14 @@ public class CourseService {
         if (!result.isEmpty()) {
             System.out.println("Service      --  First course: " + result.get(0));
         }
+        return result;
+    }
+
+    public List<CourseDTO> findCoursesByProfName(String profFirstName, String profLastNameString){
+        List<Course> courses = courseRepository.findByProfessors_ProfFirstNameAndProfessors_ProfLastName(profFirstName, profLastNameString);
+        List<CourseDTO> result = courses.stream()
+                                        .map(CourseDTO::new)
+                                        .collect(Collectors.toList());
         return result;
     }
 }
