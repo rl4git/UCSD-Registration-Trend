@@ -22,6 +22,7 @@ target/
 
 ### 启动脚本，包含环境变量的设置
 run.sh
+deploy.sh
 
 ### STS ###
 .apt_generated
