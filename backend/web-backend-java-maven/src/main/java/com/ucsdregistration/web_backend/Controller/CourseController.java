@@ -17,7 +17,7 @@ public class CourseController {
     @Autowired
     private CourseService courseService;
 
-    @GetMapping("/by-department-course-id")
+    @GetMapping("/by-department-courseid")
     public List<CourseDTO> getCourseDetails(@RequestParam String department, @RequestParam String courseId) {
         System.out.println("Controller   --  Received request for course with department: " + department + ", courseId: " + courseId);
         List<CourseDTO> courseDTOs = courseService.getAllCoursesByDepartmentAndCourseId(department, courseId);

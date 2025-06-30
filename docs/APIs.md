@@ -1,237 +1,286 @@
-#### 获取全部 department 列表
-- **Endpoint**: `GET /departments`
+### 获取全部 department 列表
+
+- **Endpoint**: `GET /api/courses/departments`
 - **参数**：无
 - **完整请求示例**：
-	- `/departments`
+  - `/api/courses/departments`
 - **成功返回 (200 OK)**
-	```json
-	{
-	    "departments": [
-	        "CSE", "MATH", "PHYS", ...
-	    ]
-	}
-	```
+  ```json
+  [
+  	"SE",
+  	"GLBH",
+  	"BGRD",
+  	"LTSP",
+  	"MUS",
+  	...,
+  	"MATH",
+  ]
+  ```
 
-#### 获取全部 department course_id 列表
-- 注意，这个单次请求的返回体会很大，但是如果你缓存整个列表的话，发送请求的数量会比 "不停查找特定department的course_id" 少很多。
-- **Endpoint**: `GET /departments/courses`
-- **参数**：无
-- **完整请求示例**：
-	- `/departments/courses/`
-- **成功返回 (200 OK)**
-	```json
-	{
-	    "departments": [
-	        {
-                "department": "CSE", 
-                "course_id": ["30", "120", ...]}, 
-            {
-                "department": "MATH", 
-                "course_id": ["10", "100", ...]},
-            {
-                "department": "PHYS", 
-                "course_id": ["23", "100D", ...]},
-	    ]
-	}
-	```
+### 返回特定 department 下的全部 course_id 列表
 
-#### 返回特定 department 下的全部 course_id 列表
-- **Endpoint**: `GET /departments/courses`
+- **Endpoint**: `GET /api/courses/courseId/by-department`
 - **参数**：
-	- `department`: （必填）系的标识符，例如 `CSE`, `MATH`
+  - `department`: （必填）系的标识符，例如 `CSE`, `MATH`
 - **完整请求示例**：
-	- `/departments/courses?department=CSE`
+  - `/api/courses/courseId/by-department?department=CSE`
 - **成功返回 (200 OK)**
-	```json
-	{
-	    "department": "CSE",
-	    "course_id":[
-	        "15L", "30", "120", ...
-	    ]
-	}
-	```
+  ```json
+  [
+  	"176E",
+  	"293",
+  	"290",
+  	"150A",
+  	"182",
+  	"209B",
+  	"140L",
+  	"20",
+  	"253R",
+  	...,
+  	"118"
+  ]
+  ```
 
-#### 获取特定 department course 信息 (年份，季度，instructor)
-- **Endpoint**: `GET /courses`
+### 获取特定教授的全部课程信息
+
+- **Endpoint**: `GET /api/courses/by-prof-name`
 - **参数(查询参数 Query Parameters)**
-	- `department`: （必填）系的标识符，例如 `CSE`, `MATH`
-	- `course_id`: （必填）课程id，例如 `120`, `110`
-- **完整请求示例**: 
-	- 忽略大小写（后端会统一转为小写比较）
-	- `/courses?department=CSE&course_id=120`
+  - `profFirstName`: 教授名
+  - `profLastName`: 教授姓
+- **完整请求示例**:
+  - `/api/courses/by-prof-name?profFirstName=Richard&profLastName=Averitt`
 - **成功返回 (200 OK)**:
-	```json
-		{
-	    "courses":[
-	        {
-	            "year":2024, "quarter":"Fall", "total": 200,
-	            "instructor":["prof_first_name prof_last_name", "prof_first_name prof_last_name"]
-	        },
-	        {
-	            "year":2024, "quarter":"Fall", "total": 200,
-	            "instructor":["prof_first_name prof_last_name", "prof_first_name prof_last_name"]
-	        }
-	    ]
-	}
-	```
+  ```json
+  [
+    {
+      "courseOfferingId": "1340ab5c862a6667ff7e74eff8ac11121d30eb90bdb1a89880c0708df451c9a4",
+      "department": "PHYS",
+      "courseId": "4A",
+      "instructor": "Richard Averitt",
+      "year": 2025,
+      "quarter": "Winter",
+      "total": 180,
+      "professors": [
+        {
+          "profId": "2df9d063f34fd89a694854c336b313b541477244795bc6a28f31b1e8c6ccefc4",
+          "profFirstName": "Richard",
+          "profLastName": "Averitt",
+          "profMiddleName": "Douglas"
+        }
+      ]
+    },
+    {
+      "courseOfferingId": "177c688f3e702254655cfcfb45144c34b82de86840f4226659238db712787f46",
+      "department": "PHYS",
+      "courseId": "4A",
+      "instructor": "Richard Averitt",
+      "year": 2024,
+      "quarter": "Winter",
+      "total": 146,
+      "professors": [
+        {
+          "profId": "2df9d063f34fd89a694854c336b313b541477244795bc6a28f31b1e8c6ccefc4",
+          "profFirstName": "Richard",
+          "profLastName": "Averitt",
+          "profMiddleName": "Douglas"
+        }
+      ]
+    }
+  ]
+  ```
 
+### 返回特定课程的信息（给定 department + course id）
 
-#### 获取特定系课程的注册数据
-- 为了避免多次请求的开销，你可以选择一次性请求 `department` + `course_id` 的全部数据，缓存到浏览器，然后根据需求在前端过滤。不然每一门特定的教授/季度都发一次请求，压力会比较大。其他的请求也是同理。
-- **Endpoint**: `GET /enrollment_snapshots`
+- **Endpoint**: `GET /api/courses/by-department-course-id`
 - **参数(查询参数 Query Parameters)**
-	- `department`: （必填）系的标识符，例如 `CSE`, `MATH`
-	- `course_id`: （必填）课程id，例如 `120`, `110`
-	- `professor`: （可选）教授名字，格式为 `prof_first_name prof_last_name`
-	- `year`: （可选）
-	- `quarter`：（可选）
-- **完整请求示例**: 
-	- 忽略大小写（后端会统一转为小写比较）
-	- `/enrollment_snapshots?department=CSE&course_id=120`
-	- `/enrollment_snapshots?department=CSE&course_id=120&professor=Geoffrey%20Voelker&year=2024&quarter=fall`
+  - `department`: （必填）系的标识符，例如 `CSE`, `MATH`
+  - `course_id`: （必填）课程 id，例如 `120`, `110`
+- **完整请求示例**:
+  - 忽略大小写（后端会统一转为小写比较）
+  - `/api/courses/by-department-courseid?department=CSE&courseId=120`
 - **成功返回 (200 OK)**:
-	```json
-	{
-		"department": "CSE",
-		"course_id": "120",
-	    // 每个不同教授，不同季度的课程的注册数据都会被放到 courses 数组里
-		"courses":[
-	    {
-	        "year": "2024",
-	        "quarter": "Fall",
-	        "total": 250,
-	        "instructor":["prof_first_name prof_last_name", "prof_first_name prof_last_name"]
-	        "enrollment_snapshots": [
-	            {"passtag": "Prior", "date": "2024-05-23",  "enrolled_ct": 0, "waitlist": 0},
-	            {"passtag": "First Pass Priorities & Seniors Start", "date": "2024-05-24",  "enrolled_ct": 0, "waitlist": 0},
-	            // ...
-	            {"passtag": "A Week After Quarter Start", "date": "2024-09-30",  "enrolled_ct": 251, "waitlist": 31}
-	        ]
-	    },
-	    { 
-	        "year": "2024",
-	        "quarter": "Winter",
-	        "instructor":["prof_first_name prof_last_name", "prof_first_name prof_last_name"]
-	        "total": 250,
-	        "enrollment_snapshots": [
-	            {"passtag": "Prior", "date": "2024-05-23",  "enrolled_ct": 0, "waitlist": 0},
-	            {"passtag": "First Pass Priorities & Seniors Start", "date": "2024-05-24",  "enrolled_ct": 0, "waitlist": 0},
-	            // ...
-	            {"passtag": "A Week After Quarter Start", "date": "2024-09-30",  "enrolled_ct": 251, "waitlist": 31},
-	        ]
-	    }]
-	}
-	```
+  ```json
+  [
+    {
+      "courseOfferingId": "08bb2302174fab75dd2f588e20aa9226ff8d99412c634ace7785e843ebfe52eb",
+      "department": "CSE",
+      "courseId": "120",
+      "instructor": "Joseph Pasquale",
+      "year": 2025,
+      "quarter": "Winter",
+      "total": 202,
+      "professors": [
+        {
+          "profId": "7665d26836e9dcc64aec6a1f10bf871e9452e2792738870ff6dc145a6919c229",
+          "profFirstName": "Joseph",
+          "profLastName": "Pasquale",
+          "profMiddleName": null
+        }
+      ]
+    },
+    {
+      "courseOfferingId": "b51a6cff4a8e9edeb1501e1a89043ee08e57bc16f5ba44d6df4377a2c445b83e",
+      "department": "CSE",
+      "courseId": "120",
+      "instructor": "Amy Ousterhout",
+      "year": 2025,
+      "quarter": "Spring",
+      "total": 328,
+      "professors": [
+        {
+          "profId": "99df9b38a03b154e2d9adfd54ee9ce1787a1497c707885b06f277999d800eaa6",
+          "profFirstName": "Amy",
+          "profLastName": "Ousterhout",
+          "profMiddleName": null
+        }
+      ]
+    }
+  ]
+  ```
+
+### 获取特定系课程的注册数据
+
+- **Endpoint**: `/api/enrollments/`
+- **参数(查询参数 Query Parameters)**
+  - `course_offering_id`: 课程的主键字符串，可以根据其他接口获取
+- **完整请求示例**:
+  - 忽略大小写（后端会统一转为小写比较）
+  - `/api/enrollments/?courseOfferingId=08bb2302174fab75dd2f588e20aa9226ff8d99412c634ace7785e843ebfe52eb`
+- **成功返回 (200 OK)**:
+  ```json
+  [
+  	{
+  		"date": "2024-11-11",
+  		"enrolled": 0,
+  		"waitlist": 0
+  	},
+  	{
+  		"date": "2024-11-12",
+  		"enrolled": 0,
+  		"waitlist": 0
+  	},
+  	...,
+  	{
+  		"date": "2025-01-19",
+  		"enrolled": 199,
+  		"waitlist": 1
+  	}
+  ]
+  ```
 - **成功返回 (200 OK) 特殊情况**:
-		如果相关课程不存在，我也会返回 200，但是json会为空
-	```json
-	{}
-	```
-- **失败返回 (400 )**:
-	```json
-	{
-		"error":"错误信息，例如 department cannot be empty."
-	}
-	```
+  如果相关课程不存在，我也会返回 200，但是 json 会为空
+  ```json
+  {}
+  ```
 
-#### 获取特定课程（教授）的评论
+---
+
+## 以下关于评论的接口尚未实现
+
+### 获取特定课程（教授）的评论
+
 - **Endpoint**: `GET /comments`
 - **参数(查询参数 Query Parameters)**
-	- `department`: （必填）系的标识符，例如 `CSE`, `MATH`
-	- `course_id`: （必填）课程id，例如 `120`, `110`
-	- `professor`: （可选）教授名字，格式为 `prof_first_name prof_last_name`
-- **完整请求示例**: 
-	- 忽略大小写（后端会统一转为小写比较）
-	- `/comments?department=CSE&course_id=120`
-	- `/comments?department=CSE&course_id=120&professor=Geoffrey%20Voelker`
+  - `department`: （必填）系的标识符，例如 `CSE`, `MATH`
+  - `course_id`: （必填）课程 id，例如 `120`, `110`
+  - `professor`: （可选）教授名字，格式为 `prof_first_name prof_last_name`
+- **完整请求示例**:
+  - 忽略大小写（后端会统一转为小写比较）
+  - `/comments?department=CSE&course_id=120`
+  - `/comments?department=CSE&course_id=120&professor=Geoffrey%20Voelker`
 - **成功返回 (200 OK)**
-	```json
-	{
-		"department": "CSE",
-		"course_id": "120",
-		"comments":[
-	        {
-		        "comment_id": "asdjbaskndjafsbams",
-	            "professor": "prof_first_name prof_last_name", 
-	            "year": 2024,
-	            "quarter": "Fall", 
-	            "comment_date": "2025-05-11",
-	            "comment": "comment content",
-	            "rate": 2.5,
-	            "like": 5,
-	            "dislike": 5
-	        },
-	        {
-		        "comment_id": "fdjgnsdujdhknkasdka",
-	            "professor": "prof_first_name prof_last_name",
-	            "year": 2024,
-	            "quarter": "Fall", 
-	            "comment_date": "2025-06-12",
-	            "comment": "comment content",
-	            "rate": 5.0,
-	            "like": 12,
-	            "dislike": 8
-	        }
-	    ]
-	}
-	```
+  ```json
+  {
+    "department": "CSE",
+    "course_id": "120",
+    "comments": [
+      {
+        "comment_id": "asdjbaskndjafsbams",
+        "professor": "prof_first_name prof_last_name",
+        "year": 2024,
+        "quarter": "Fall",
+        "comment_date": "2025-05-11",
+        "comment": "comment content",
+        "rate": 2.5,
+        "like": 5,
+        "dislike": 5
+      },
+      {
+        "comment_id": "fdjgnsdujdhknkasdka",
+        "professor": "prof_first_name prof_last_name",
+        "year": 2024,
+        "quarter": "Fall",
+        "comment_date": "2025-06-12",
+        "comment": "comment content",
+        "rate": 5.0,
+        "like": 12,
+        "dislike": 8
+      }
+    ]
+  }
+  ```
 - **失败返回 (400 )**:
-	```json
-	{
-		"error":"错误信息，例如 department cannot be empty."
-	}
-	```
+  ```json
+  {
+    "error": "错误信息，例如 department cannot be empty."
+  }
+  ```
 
-#### 上传用户评价
+### 上传用户评价
+
 - **Endpoint**: `POST /comments`
 - **请求体 Request Body**
-	```json
-	{
-	    "department": "CSE",
-	    "course_id": "120",
-	    "professor": "prof_first_name prof_last_name",
-	    "year": 2024,
-	    "quarter": "Fall",
-	    "rate": 2.5,
-	    "comment": "This course sucks."
-	}
-	```
+  ```json
+  {
+    "department": "CSE",
+    "course_id": "120",
+    "professor": "prof_first_name prof_last_name",
+    "year": 2024,
+    "quarter": "Fall",
+    "rate": 2.5,
+    "comment": "This course sucks."
+  }
+  ```
 - **成功响应 (200 OK)**
-	```json
-	{
-		"message": "Comment created.",
-		"comment_id": "asdnkhabjdsna"
-	}
-	```
+  ```json
+  {
+    "message": "Comment created.",
+    "comment_id": "asdnkhabjdsna"
+  }
+  ```
 - **失败响应 (400)**
-	```json
-	{
-		"message": "Request body incorrect format."
-	}
-	```
+  ```json
+  {
+    "message": "Request body incorrect format."
+  }
+  ```
 
-#### 给评论点赞
+### 给评论点赞
+
 - **注释**：点赞和点踩都要加延迟，不然有人恶意连续快速点击点赞点踩，每一次点击都发一个请求就卡死了。
-- **Endpoint**:  `POST /comments/{comment_id}/likes`
+- **Endpoint**: `POST /comments/{comment_id}/likes`
 - **参数 (路径参数)**
-	- `comment_id`: 必选 
+
+  - `comment_id`: 必选
 
 - **成功响应**:
-	```json
-	{
-		"message": "Like added successfully."
-	}
-	```
+  ```json
+  {
+    "message": "Like added successfully."
+  }
+  ```
 
-#### 给评论点踩
+### 给评论点踩
+
 - **注释**：点赞和点踩都要加延迟，不然有人恶意连续快速点击点赞点踩，每一次点击都发一个请求就卡死了。
-- **Endpoint**:  `POST /comments/{comment_id}/unlikes`
+- **Endpoint**: `POST /comments/{comment_id}/unlikes`
 - **参数 (路径参数)**
-	- `comment_id`: 必选 
+
+  - `comment_id`: 必选
 
 - **成功响应**:
-	```json
-	{
-		"message": "Unlike added successfully."
-	}
-	```
+  ```json
+  {
+    "message": "Unlike added successfully."
+  }
+  ```
