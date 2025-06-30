@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+
+import java.util.List;
 import java.util.Set;
 
 
@@ -58,6 +60,16 @@ public class Course {
     @ToString.Exclude // 关键！防止无限循环
     @EqualsAndHashCode.Exclude // 同样建议排除
     private Set<Professor> professors;
+
+    // 与Enrollement_Snapshots的链接
+    @OneToMany(
+        mappedBy = "course",    // 关键：指明这个关系是由 EnrollmentSnapshot 实体中的 "course" 字段来维护的
+        cascade = CascadeType.ALL,
+         orphanRemoval = true,
+        fetch = FetchType.LAZY)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private List<EnrollmentSnapshot> enrollmentSnapshots;
 
     // 你的自定义 toString 很好，因为它没有引用 professors 集合，所以不会引起循环。
     // 如果你移除了它，并依赖 Lombok 的 @Data，那么上面的 @ToString.Exclude 就至关重要。

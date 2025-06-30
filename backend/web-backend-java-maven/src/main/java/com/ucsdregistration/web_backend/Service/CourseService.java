@@ -20,21 +20,14 @@ public class CourseService {
         return courses;
     }
 
-    public List<Course> getAllCoursesByDepartmentAndCourseId(String department, String courseId) {
+    public List<CourseDTO> getAllCoursesByDepartmentAndCourseId(String department, String courseId) {
         System.out.println("Service      --  Fetching courses with department: " + department + ", courseId: " + courseId);
         List<Course> courses = courseRepository.findByDepartmentAndCourseId(department, courseId);
+        List<CourseDTO> courseDTOs = courses.stream()
+                                            .map(CourseDTO::new)
+                                            .collect(Collectors.toList());
         System.out.println("Service      --  Retrieved " + (courses.isEmpty() ? "empty list" : courses.size() + " course(s)") + " for department: " + department + ", courseId: " + courseId);
-        return courses;
-    }
-
-    public List<Course> findTopTenCourseByYear() {
-        System.out.println("Service      --  Get course top ten request.");
-        List<Course> result = courseRepository.findTop10ByOrderByYearAsc();
-        System.out.println("Service      --  Retrieved " + (result.isEmpty() ? "empty list" : result.size() + " course(s)") + " for top ten request.");
-        if (!result.isEmpty()) {
-            System.out.println("Service      --  First course: " + result.get(0));
-        }
-        return result;
+        return courseDTOs;
     }
 
     public List<CourseDTO> findCoursesByProfName(String profFirstName, String profLastNameString){
@@ -44,4 +37,15 @@ public class CourseService {
                                         .collect(Collectors.toList());
         return result;
     }
+
+    // return all distinct departments
+    public List<String> getAllDepartments() {
+        return courseRepository.findDistinctDepartments();
+    }
+
+    // return all distinct course id in given department
+    public List<String> getCourseIdByDepartment(String department){
+        return courseRepository.findDistinctCourseIdByDepartment(department);
+    }
+
 }

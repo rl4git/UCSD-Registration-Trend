@@ -2,7 +2,6 @@ package com.ucsdregistration.web_backend.DTO;
 
 import lombok.Data;
 import java.util.Set;
-import java.util.*;
 import java.util.stream.Collectors;
 
 import com.ucsdregistration.web_backend.Entity.Course;
