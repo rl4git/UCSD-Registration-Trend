@@ -1,0 +1,56 @@
+id,passtag,passtime,year,quarter
+f7cc176b4d5458bf07e7f1e2ed5c59593adfa5c5d31e8d6f7b75f783e69f059e,Prior,2023-11-13,2024,Winter
+e039988f4d690e7849a7a043d34b49c185cb7ba82cc22ce21ca0edf205e662fe,Prior,2024-02-16,2024,Spring
+beb8426807ad454bd1a3a8b4bdfb7dddb9c5a3e79b893c28c6ac2b47102641b5,Prior,2024-05-23,2024,Fall
+4e6b730362d1640374b1bdcb5b531c46975e5a866a81324e4a3f5d10d943059c,Prior,2024-11-11,2025,Winter
+12407425420def57cae848501e264144895ac975cd03bb5145d171a84fccf95d,Prior,2025-02-14,2025,Spring
+44479c0b4e4807d9a3a7cdf04ea0549897d1a20af2c04fb2af00fdaf28d39db5,First Pass Priorities & Seniors Start,2023-11-14,2024,Winter
+2416412c99b2efb4278c02fea96029b613a5e5d80b1fc0b149edcddf908edaeb,First Pass Priorities & Seniors Start,2024-02-17,2024,Spring
+9c7449debd39ce697b9881d34b57fae89b88e07fb7d00822aae06526e026f4b3,First Pass Priorities & Seniors Start,2024-05-24,2024,Fall
+247efd189e807c90ef9851b99b3380e351f24dbf29bf005db74485aadf762eec,First Pass Priorities & Seniors Start,2024-11-12,2025,Winter
+54bf2d8976fde085436059c7bd7e6b6534b62af480c2dd50d9aa724d6565f3a3,First Pass Priorities & Seniors Start,2025-02-15,2025,Spring
+c33fded42e3e019dbcf6c1e1ba137240845c6f1e35d9802bab11948e1aa36981,First Pass Juniors Start,2023-11-16,2024,Winter
+5c9f940c9edb9b65a421bc4323323e9c0b38ece0ffaf6418bf71b6035da1cdac,First Pass Juniors Start,2024-02-20,2024,Spring
+c991b60e34905c04baa13aeeb6323ef914b00eedf436a2b96932ec4a2fbe0d11,First Pass Juniors Start,2024-05-27,2024,Fall
+f981fe3455786cd61918877e145c4218cece05cdc8306f0e81fea10d4daa6aa3,First Pass Juniors Start,2024-11-14,2025,Winter
+aaaaac56202467e87e03fb4ffe25018457c492e5cf421bf4ec4b41327078b7c5,First Pass Juniors Start,2025-02-18,2025,Spring
+7caa30651d0337f21ebcb2ecb1a6c0c14b3314188d05d2159b04149913240a5b,First Pass Sophmores Start,2023-11-17,2024,Winter
+71af654ed762e5bad7ae9b9ae372dc8cb55c4d04cfe2be0787fbc4f04085168e,First Pass Sophmores Start,2024-02-21,2024,Spring
+08fa9f13d5de6114c24b36da3a8acb22e56f21e6728d3bf7d063d90493c2007d,First Pass Sophmores Start,2024-05-28,2024,Fall
+5b1e870319d12359618e1508e6fa02a862917f0059a66bf1489ae5ed8726a87b,First Pass Sophmores Start,2024-11-15,2025,Winter
+3478a9fd2eca9dfff924947848bf3cc43d08b06933447290f9edcb812b90b5f0,First Pass Sophmores Start,2025-02-19,2025,Spring
+26050562c2a9d7110e652a42a6792734c1ab0d2ca0cbfc515865514139d81b60,First Pass First-Year Start,2023-11-18,2024,Winter
+257f263887ee3e18f62951b0bfdd1e8685f475300707b71006da4c486a5d4d2d,First Pass First-Year Start,2024-02-22,2024,Spring
+ae14e62c808120d9cfe5ed0c65a2bac4df597359e9e906b5f5a510d95621802f,First Pass First-Year Start,2024-05-29,2024,Fall
+b684f7a13ba7fdb19192f91b538f74b4a8b4271768db6cd9c3a2b27103586f65,First Pass First-Year Start,2024-11-16,2025,Winter
+b14036fffe145dc5aa999c7020d5958e79a2a47f391aa5b8f5df917ab8892a27,First Pass First-Year Start,2025-02-20,2025,Spring
+0d0ea50fdc8ac56f4ac55659d6d9c08d4b46d6a9c3a932a2f7ccf7652c7df275,Second Pass Priorities & Seniors Start,2023-11-21,2024,Winter
+3a9cc06994c6cf41c928edc273151614094880fb284b64996936c16d79c9032b,Second Pass Priorities & Seniors Start,2024-02-26,2024,Spring
+b7b5ab3737cc8a9b29e7c2d9a1cb61c33ff4ec1b19feead7b683dd36c9704f24,Second Pass Priorities & Seniors Start,2024-06-01,2024,Fall
+1482e42624a5e51b66128abdead4ae44e104691eb2365329eac5569d7168371c,Second Pass Priorities & Seniors Start,2024-11-19,2025,Winter
+a6488bb008eea374182ef29912224a0d5202eb9cd6e91dd8ebb104ac83b81e5a,Second Pass Priorities & Seniors Start,2025-02-24,2025,Spring
+ef9c0a6168d8f25496d385db5eca53fdd7adf4355b26ae145d6e9f4b89b8cbf9,Second Pass Juniors Start,2023-11-24,2024,Winter
+55e4da1de19523ea72d3c7c0d8f435e3878f9d497b140b1183b3e2d38481a5a0,Second Pass Juniors Start,2024-02-28,2024,Spring
+60ad7bc7f7e4c08cee034aae74e9b38427dce5d2570a75cd1e9cbdd5bc252cfa,Second Pass Juniors Start,2024-06-04,2024,Fall
+517ba8ac78db53cd448b9ebd248912233556568b5989c8aa8880ef59ade877e0,Second Pass Juniors Start,2024-11-21,2025,Winter
+8b4437ad448e4a20d73eb0325dc61348d12273df542c81d81d0085361fb80f30,Second Pass Juniors Start,2025-02-26,2025,Spring
+fd563beee842222f447d187448859adc7525924334910929bace643d512baf3f,Second Pass Sophmores Start,2023-11-25,2024,Winter
+7a12f5dc29b62b9a12f2655fa1a7cf2d05a855bc3525b1e7962c003f293305d1,Second Pass Sophmores Start,2024-02-29,2024,Spring
+c9f72d57535be5fad1789b589bb1ae2de4aa121f6a629bb9958854d5bd30c653,Second Pass Sophmores Start,2024-06-05,2024,Fall
+09752d20e50cf681a638046eec8751d581235d5ae10bdfed0081be53ebf24f15,Second Pass Sophmores Start,2024-11-22,2025,Winter
+f4606e2e6230ec10d15b577881d3ff3c909c821ceb48dde4f6ffab2745a3747e,Second Pass Sophmores Start,2025-02-27,2025,Spring
+dc5aba5892ecb5f9e27b9ca89ae1bb5bea0caae5b28b0ca81fe11af3934b23bd,Second Pass First-Year Start,2023-11-27,2024,Winter
+032182a392b606cfbad0112f69ffc03c0565b835307cc3af09f4efaa3f7cec48,Second Pass First-Year Start,2024-03-01,2024,Spring
+bf7802bbc0b6f924be7889cf161ccb44c0ecd0eccb2694d3c2b229d9f9e9c3e1,Second Pass First-Year Start,2024-06-06,2024,Fall
+bcf4095801985ec88797bfc1a5b324a46e5be7a854a72e6cb56017e37e7fbb9a,Second Pass First-Year Start,2024-11-23,2025,Winter
+1526709239534dadfc4666ea12319c26de873d9b81479451029bc061837649f8,Second Pass First-Year Start,2025-02-28,2025,Spring
+f03d428f94f31855c098f2d0f76fd9029050b34f3da6d988e90491b06d8a809a,Quarter Start,2024-01-04,2024,Winter
+e5d684b7378e9fe4891c7e7fafb9e8e8511261f6bca4d7bb61a094139b37e1fc,Quarter Start,2024-03-27,2024,Spring
+eefd343192a0c8d3d98eea47439a0d224e6d2eba332e23f1424d4fa5305d37ad,Quarter Start,2024-09-23,2024,Fall
+79d97ebac0ceb1f7c8e20ece7459c87f9446d2bae0ffd9507092e5f74cc71988,Quarter Start,2025-01-02,2025,Winter
+6d2858fdfadf74199e23bedf0dc9b5f4a724edf78c8d1e0a3d14c56e1327c506,Quarter Start,2025-03-26,2025,Spring
+550d9082049780bba40ad8a5e73e5007cd3889fdecf6e6df13aec70651575cf7,A Week After Quarter Start,2024-01-11,2024,Winter
+ee02c8e170f9ab2ddfbc36e170296abfdd176d520ae873c9a1f13072e842dead,A Week After Quarter Start,2024-04-04,2024,Spring
+d7379d5bc016cf82bdd6cf6748ab8fc9d247e8ffb625ca8cce83e603d1898e16,A Week After Quarter Start,2024-09-30,2024,Fall
+739a59e2e75da075f2d81e8bccc2d872158d440fc48f02c9e55b7507929c42d0,A Week After Quarter Start,2025-01-18,2025,Winter
+7e3794286f818fae0316362c0184325a17ce62532204235529bfdc244bd98401,A Week After Quarter Start,2025-04-02,2025,Spring

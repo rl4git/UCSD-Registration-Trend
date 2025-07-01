@@ -83,6 +83,11 @@
 >>>>>>> b61153ba0758ade8193cb74a23f58dbd73244644
 - 从 S3 下载数据
   ```bash
+  # 可以直接执行脚本
+  ./cleaned_data/download_s3_data.sh
+
+  # 或者手动执行命令
+  # 注意，AWS CLI 不会主动删除旧文件，需要先手动删除
   # 下载单个文件
   aws s3 cp s3://桶名/路径名/文件名 本地路径/文件名
   # 下载文件夹
@@ -91,20 +96,23 @@
 
 ### 3. 运行脚本，上传数据至 RDS
 
-- `mysql_data_update.py` 会读取 `../data/ucsd` 内的文件，替换 AWS RDS MySQL 的表，包括
-  - `../cleaned_data/ucsd/final_table/courses/`
-  - `../cleaned_data/ucsd/final_table/professors/`
-  - `../cleaned_data/ucsd/final_table/courses_professors/`
-  - `../cleaned_data/ucsd/final_table/enrollment_snapshots/`
-  - `../cleaned_data/ucsd/final_table/passtimes/`
-    > 注意，`../data/ucsd` 内的文件应当是从 S3 下载的最新文件。如果不是最新文件，请首先更新其数据。
+读取 `../data/ucsd` 内的文件，替换 MySQL 的表，包括
+
+- `../cleaned_data/ucsd/final_table/courses/`
+- `../cleaned_data/ucsd/final_table/professors/`
+- `../cleaned_data/ucsd/final_table/courses_professors/`
+- `../cleaned_data/ucsd/final_table/enrollment_snapshots/`
+- `../cleaned_data/ucsd/final_table/passtimes.csv`
+  > 注意，`../data/ucsd` 内的文件应当是从 S3 下载的最新文件。如果不是最新文件，请首先更新其数据。
 
 #### 过程
 
 - 启用 conda 环境 `conda activate mysql_import`
 - 如果不是我的本机，可以根据`enviroment.yml`重建环境
-- 运行`python mysql_data_update.py`
-  - 注意，脚本会从 `.env` 文件中读取 RDS 数据库的参数
-  - 注意，此脚本目前会对数据库的表直接替换，而非更新。
-  - 对于 `courses_professors` 和 `enrollment_snapshots` 两张表，耗时会很长，约各 2 分钟。
-  - 此脚本需要在未来进行更新，使用更为简便，节约，安全的方式
+- 运行`python mysql_update.py`
+  - 注意，此脚本会先将本地数据上传至临时表，而后运行 `INSERT ... ON DUPLICATE` 来更新旧表。
+  - 注意，此脚本依赖于环境变量中的数据库链接设置，保证你在环境变量，或者当前的.env文件中包含:
+    - `DB_HOST=`
+    - `DB_NAME=`
+    - `DB_USER=`
+    - `DB_PASS=`
