@@ -1,4 +1,3 @@
----
 ## Table Structure Documentation
 
 ### Table Deploy
@@ -76,7 +75,8 @@
     - **`course_offering_id`** (`varchar(255)`, **Foreign Key**, `MUL`, `NOT NULL`): References the `course_offering_id` in the `courses` table.
     - **`prof_id`** (`varchar(255)`, **Foreign Key**, `MUL`, `NOT NULL`): References the `prof_id` in the `professors` table.
     - **`comment`** (`text`): The actual content of the comment. This field can be `NULL`.
-    - **`uploaded_at`** (`timestamp`, `DEFAULT CURRENT_TIMESTAMP`): The timestamp when the comment was uploaded. Automatically set to the current timestamp upon insertion and updated on modification. This field can be `NULL` but `NOT NULL` would be better given it's an upload time.
+    - **`created_at`** (`timestamp`, `DEFAULT CURRENT_TIMESTAMP`): created time stamp.
+    - **`updated_at`** auto update timestamp when comment update.
     - **`like_ct`** (`int`, `DEFAULT 0`): The number of "likes" for the comment. This field can be `NULL`.
     - **`dislike_ct`** (`int`, `DEFAULT 0`): The number of "dislikes" for the comment. This field can be `NULL`.
 
