@@ -1,118 +1,133 @@
-### Introduction
+-----
 
-这是一个用来清理数据，上传数据到 RDS 的脚本的文件夹。
+## Introduction
 
-应当在每个注册季后，按照下面的顺序运行一次，以更新数据库。
+This folder contains scripts for **cleaning data** and **uploading it to AWS RDS**.
 
-文件夹的内容：
+You should run these scripts once after each registration period to **update the database**.
 
-- `./data_cleaning/`: 包含用来清理 S3 的原始数据，并保存到 S3 的脚本
-- `./cleaned_data/`：保存从 S3 下载的数据（清理后的数据，可以直接上传到 RDS）
-- `./mysql_data_update/`: 包含将 `./cleaned_data/` 的数据上传到 RDS 的脚本。
+### Folder Contents:
 
-### 1. Clean Data
+  - `./data_cleaning/`: Contains scripts for cleaning raw data from S3 and saving the cleaned data back to S3.
+  - `./cleaned_data/`: Stores data downloaded from S3 (cleaned and ready for direct upload to RDS).
+  - `./mysql_data_update/`: Contains scripts for uploading the data from `./cleaned_data/` to RDS.
 
-#### Clean raw data
+-----
 
-1. 先从原始数据库下载需要的季度的 raw data 到 S3
+## 1\. Clean Data
 
-   - 原始数据库链接：`https://github.com/UCSD-Historical-Enrollment-Data/UCSDHistEnrollData.git`
-   - S3 路径：`ucsd/raw/{year}{Quarter}/*.csv` Quarter 的首字母大写，例如 `ucsd/raw/2024Winter/....csv`
+### Clean Raw Data
 
-2. 打开第一个 python notebook: `./data_cleaning/Data Cleaning ...`
+1.  **Download raw data from the original database to S3 for the required quarter.**
 
-   - 在前面的单元格内设置 AWS S3 链接需要的 `access key`, `secret key`, `region`, `bucket name`
-   - 向下，检查 passtimes 的基础设置。将年份，季度，passtime 修改为你的原始数据所对应的 passtime。
+      * Original database link: `https://github.com/UCSD-Historical-Enrollment-Data/UCSDHistEnrollData.git`
+      * S3 path: `ucsd/raw/{year}{Quarter}/*.csv` (e.g., `ucsd/raw/2024Winter/....csv`, with the first letter of the Quarter capitalized).
 
-3. 运行整个 `Data Cleaning` notebook，脚本会从 S3，根据 passtimes 读取需要的原始数据，清理后保存回 S3。
+2.  **Open the first Python notebook: `./data_cleaning/Data Cleaning ...`**
 
-4. 数据应当会被保存到：
+      * In the initial cells, set your AWS S3 connection details: `access key`, `secret key`, `region`, and `bucket name`.
+      * Scroll down and **verify the `passtimes` configuration**. Modify the year, quarter, and passtime to match your raw data.
 
-- 每个季度的清理数据：`ucsd/cleaned/{}year{quarter}/*.csv`
-- 每个季度清理后数据的汇总：`ucsd/final/fianl/*.csv`
-- passtimes (json 格式): `ucsd/final/passtimes.json`
-- passtimes (csv 格式): `ucsd/final_table/passtimes/*.csv`
-  > 关于数据的信息，请阅读 notebook
+3.  **Run the entire `Data Cleaning` notebook.** The script will read the necessary raw data from S3 based on your `passtimes` settings, clean it, and save it back to S3.
 
-#### Make tables
+4.  **Cleaned data will be saved to:**
 
-1. 打开第二个 notebook：`./data_cleaning/Table Creation ...`
+      * Cleaned data for each quarter: `ucsd/cleaned/{}year{quarter}/*.csv`
+      * Aggregated cleaned data for all quarters: `ucsd/final/final/*.csv`
+      * Passtimes (JSON format): `ucsd/final/passtimes.json`
+      * Passtimes (CSV format): `ucsd/final_table/passtimes/*.csv`
 
-- 在前面的单元格内设置 AWS S3 链接需要的 `access key`, `secret key`, `region`, `bucket name`
+    > For more details on the data, please refer to the notebook.
 
-2. 运行 notebook，脚本会从 S3，根据 passtimes 读取需要的数据，清理后保存回 S3。
+### Make Tables
 
-3. 数据应当会被保存到：
+1.  **Open the second notebook: `./data_cleaning/Table Creation ...`**
 
-- 每张表的数据：`ucsd/final_table/{对应的表名}/*.csv`
+      * In the initial cells, set your AWS S3 connection details: `access key`, `secret key`, `region`, and `bucket name`.
 
-### 2. 下载数据到 EC2
+2.  **Run the notebook.** The script will read the necessary data from S3 based on `passtimes`, process it into the required table structures, and save it back to S3.
 
-- 将表的数据保存到 `./cleaned_data/ucsd/final_table/{对应的表名}/*.csv`
-- 可以手动下载上传，或者使用 aws cli
+3.  **Table data will be saved to:**
 
-#### AWS CLI 配置
+      * Data for each table: `ucsd/final_table/{table_name}/*.csv`
 
-- 安装 AWS CLI
+-----
 
-  ```bash
-  # 如果遇到权限不足，就在指令前面加个 sudo
-  # 更新包管理软件
-  sudo apt update
+## 2\. Download Data to EC2
 
-  # 安装awscli，提供一系列和aws交互的命令
-  # [安装或更新最新版本的 AWS CLI - AWS Command Line Interface](https://docs.aws.amazon.com/zh_cn/cli/latest/userguide/getting-started-install.html)
-  # 根据AWS官网上的描述，依次运行：
-  curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-  sudo unzip awscliv2.zip
-  sudo ./aws/install
-  ```
+  - Save the table data to `./cleaned_data/ucsd/final_table/{corresponding_table_name}/*.csv`.
+  - You can download and upload manually or use the AWS CLI.
 
-- 进入 AWS IAM，为 AWS CLI 创建新角色
-  - 需要 `aws s3 read only` 权限
-  - 需要 `aws rds full access` 权限
-- 创建 access key，获取 access key 和 secret key
-- 回到 EC2，输入命令 `aws configure`，依次输入
-  - aws access key
-  - aws secret key
-  - region
-  - 返回数据格式，可选，比如 json
-<<<<<<< HEAD
-- **将旧数据从本地路径删除，因为AWS cli 默认不会覆盖不同名的文件**
-=======
->>>>>>> b61153ba0758ade8193cb74a23f58dbd73244644
-- 从 S3 下载数据
-  ```bash
-  # 可以直接执行脚本
-  ./cleaned_data/download_s3_data.sh
+### AWS CLI Configuration
 
-  # 或者手动执行命令
-  # 注意，AWS CLI 不会主动删除旧文件，需要先手动删除
-  # 下载单个文件
-  aws s3 cp s3://桶名/路径名/文件名 本地路径/文件名
-  # 下载文件夹
-  aws s3 cp s3://桶名/路径名/ 本地路径/ --recursive
-  ```
+  - **Install AWS CLI**
 
-### 3. 运行脚本，上传数据至 RDS
+    ```bash
+    # If you encounter permission issues, prepend 'sudo' to the command.
+    # Update package manager
+    sudo apt update
 
-读取 `../data/ucsd` 内的文件，替换 MySQL 的表，包括
+    # Install awscli, which provides commands for interacting with AWS.
+    # [Install or update the latest version of the AWS CLI - AWS Command Line Interface](https://docs.aws.com/cli/latest/userguide/getting-started-install.html)
+    # As described on the AWS official website, run the following commands sequentially:
+    curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+    sudo unzip awscliv2.zip
+    sudo ./aws/install
+    ```
 
-- `../cleaned_data/ucsd/final_table/courses/`
-- `../cleaned_data/ucsd/final_table/professors/`
-- `../cleaned_data/ucsd/final_table/courses_professors/`
-- `../cleaned_data/ucsd/final_table/enrollment_snapshots/`
-- `../cleaned_data/ucsd/final_table/passtimes.csv`
-  > 注意，`../data/ucsd` 内的文件应当是从 S3 下载的最新文件。如果不是最新文件，请首先更新其数据。
+  - **Go to AWS IAM and create a new role for AWS CLI.**
 
-#### 过程
+      * Requires `aws s3 read only` permissions.
+      * Requires `aws rds full access` permissions.
 
-- 启用 conda 环境 `conda activate mysql_import`
-- 如果不是我的本机，可以根据`enviroment.yml`重建环境
-- 运行`python mysql_update.py`
-  - 注意，此脚本会先将本地数据上传至临时表，而后运行 `INSERT ... ON DUPLICATE` 来更新旧表。
-  - 注意，此脚本依赖于环境变量中的数据库链接设置，保证你在环境变量，或者当前的.env文件中包含:
-    - `DB_HOST=`
-    - `DB_NAME=`
-    - `DB_USER=`
-    - `DB_PASS=`
+  - **Create an access key to obtain your access key and secret key.**
+
+  - **Back on your EC2 instance, run `aws configure` and enter the following:**
+
+      * AWS Access Key ID
+      * AWS Secret Access Key
+      * Default region name
+      * Default output format (optional, e.g., `json`)
+
+  - **Delete old data from the local path, as AWS CLI does not overwrite files with different names by default.**
+
+  - **Download data from S3**
+
+    ```bash
+    # You can execute the script directly
+    ./cleaned_data/download_s3_data.sh
+
+    # Or execute commands manually
+    # Note: AWS CLI does not proactively delete old files; you need to delete them manually first.
+    # Download a single file
+    aws s3 cp s3://your-bucket-name/path/to/file.csv /local/path/to/file.csv
+    # Download a folder recursively
+    aws s3 cp s3://your-bucket-name/path/to/folder/ /local/path/to/folder/ --recursive
+    ```
+
+-----
+
+## 3\. Run Script to Upload Data to RDS
+
+> For the RDS table structure, please refer to [RDS table structure](https://www.google.com/search?q=../docs/table_structure.md).
+
+This process reads files within `../data/ucsd` and updates the MySQL tables, including:
+
+  - `../cleaned_data/ucsd/final_table/courses/`
+  - `../cleaned_data/ucsd/final_table/professors/`
+  - `../cleaned_data/ucsd/final_table/courses_professors/`
+  - `../cleaned_data/ucsd/final_table/enrollment_snapshots/`
+  - `../cleaned_data/ucsd/final_table/passtimes.csv`
+    > **Note**: The files in `../data/ucsd` should be the latest downloaded from S3. If they are not up-to-date, please update them first.
+
+### Process
+
+  - **Activate the conda environment:** `conda activate mysql_import`
+  - If you are not on my local machine, you can recreate the environment using `environment.yml`.
+  - **Run `python mysql_update.py`**
+      * **Note**: This script will first upload local data to temporary tables, then execute `INSERT ... ON DUPLICATE KEY UPDATE` to refresh the existing tables.
+      * **Note**: This script relies on database connection settings in your environment variables. Ensure that your environment variables or current `.env` file include:
+          * `DB_HOST=`
+          * `DB_NAME=`
+          * `DB_USER=`
+          * `DB_PASS=`
