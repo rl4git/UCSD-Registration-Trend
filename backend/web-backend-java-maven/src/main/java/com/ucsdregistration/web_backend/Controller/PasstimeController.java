@@ -17,8 +17,8 @@ public class PasstimeController {
     @Autowired
     private PasstimeService passtimeService;
 
-    @GetMapping("/by-year-quarter")
-    public List<PasstimeDTO> getPasstimeByYearAndQuarter(@RequestParam String year, @RequestParam String quarter) {
+    @GetMapping("/{year}/{quarter}")
+    public List<PasstimeDTO> getPasstimeByYearAndQuarter(@PathVariable("year") String year, @PathVariable("quarter") String quarter) {
         return passtimeService.getPasstagByYearAndQuarter(year, quarter);
     }
 }

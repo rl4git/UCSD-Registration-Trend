@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -31,9 +33,9 @@ public class CommentService {
      * @return 保存后的评论实体
      */
     @Transactional
-    public Comment uploadComment(String courseOfferingId, String profId, String commentContent) {
+    public CommentDTO uploadComment(String courseOfferingId, String profId, String commentContent) {
         Comment newComment = new Comment(courseOfferingId, profId, commentContent);
-        return commentRepository.save(newComment);
+        return new CommentDTO(commentRepository.save(newComment));
     }
 
     /**
@@ -43,9 +45,9 @@ public class CommentService {
      */
     @Transactional
     public boolean likeComment(Long commentId){
-        Optional<Comment> existingComment = commentRepository.findBy(commentId);
+        Optional<Comment> existingComment = commentRepository.findById(commentId);
         if (existingComment.isPresent()){
-            commentRepository.incrementLikeCount(commendId);
+            commentRepository.incrementLikeCount(commentId);
             return true;
         }
         return false; // comment not exist
@@ -56,19 +58,39 @@ public class CommentService {
      * @param commentId 评论ID
      * @return true 如果成功，false 如果评论不存在
      */
+    @Transactional
     public boolean dislikeComment(Long commentId){
-        Optional<Comment> existingComment = commentRepository.findBy(commentId);
+        Optional<Comment> existingComment = commentRepository.findById(commentId);
         if(existingComment.isPresent()){
             commentRepository.incrementDislikeCount(commentId);
             return true;
         }
         return false;
     }
+   
+    public CommentDTO getByCommentId(Long commentId){
     
-    public List<CommentDTO> getByCourseOfferingId(String courseOfferingId){}
+        Optional<Comment> existingComment = commentRepository.findById(commentId);
+        if (existingComment.isPresent()){
+            return new CommentDTO(existingComment.get());
+        }
+        return null;
+    }
 
-    public List<CommentDTO> getByCourseOfferingIdAndProfId(String courseOfferingId, String profId){}
+    public List<CommentDTO> getByCourseOfferingId(String courseOfferingId){
+        List<Comment> comments = commentRepository.findByCourseOfferingId(courseOfferingId);
+        List<CommentDTO> result = comments.stream()
+                                         .map(CommentDTO::new)
+                                         .collect(Collectors.toList());
+        return result;
+    }
 
-    public 
+    public List<CommentDTO> getByCourseOfferingIdAndProfId(String courseOfferingId, String profId){
+        List<Comment> comments = commentRepository.findByCourseOfferingIdAndProfId(courseOfferingId, profId);
+        List<CommentDTO> result = comments.stream()
+                                         .map(CommentDTO::new)
+                                         .collect(Collectors.toList());
+        return result;
 
+    }
 }
