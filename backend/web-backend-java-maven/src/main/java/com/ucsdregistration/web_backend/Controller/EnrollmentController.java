@@ -16,8 +16,8 @@ public class EnrollmentController {
     @Autowired
     private EnrollmentSnapshotService esService;
 
-    @GetMapping("/")
-    public List<EnrollmentSnapshotDTO> getEnrollmentSnapshotsByCourseOfferingId(@RequestParam String courseOfferingId) {
+    @GetMapping("/{courseOfferingId}")
+    public List<EnrollmentSnapshotDTO> getEnrollmentSnapshotsByCourseOfferingId(@PathVariable("courseOfferingId") String courseOfferingId) {
         return esService.getEnrollmentSnapshots(courseOfferingId);
     }
 }

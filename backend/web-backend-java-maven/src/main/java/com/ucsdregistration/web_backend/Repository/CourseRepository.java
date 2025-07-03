@@ -15,16 +15,18 @@ public interface CourseRepository extends JpaRepository<Course, String> {
     // JpaRepository<实体类型，主键类型>
     
     @EntityGraph(attributePaths = "professors")
-    List<Course> findByDepartmentAndCourseId(String department, String courseId);
+    @Query("SELECT c FROM Course c WHERE LOWER(c.department) = LOWER(:department) AND LOWER(c.courseId) = LOWER(:courseId)")
+    List<Course> findByDepartmentAndCourseId(@Param("department") String department, @Param("courseId") String courseId);
 
-    @EntityGraph(attributePaths = "professors") // <-- 告诉JPA在执行查询时，要同时抓取 "professors" 这个属性
-    // 下面的 JOIN FETCH 也会有同样的效果
-    // @Query("SELECT DISTINCT c FROM Course c JOIN FETCH c.professors p WHERE p.profFirstName = :firstName AND p.profLastName = :lastName")
-    List<Course> findByProfessors_ProfFirstNameAndProfessors_ProfLastName(String profFirstName, String profLastName);
+    // 忽略大小写的检索版本
+    @Query("SELECT DISTINCT c FROM Course c JOIN FETCH c.professors p WHERE LOWER(p.profFirstName) = LOWER(:firstName) AND LOWER(p.profLastName) = LOWER(:lastName)")
+    List<Course> findByProfessorsName(@Param("firstName") String firstName, @Param("lastName") String lastName);
+
 
     @Query("SELECT DISTINCT c.department FROM Course c")
     List<String> findDistinctDepartments();
 
-    @Query("SELECT DISTINCT c.courseId FROM Course c WHERE c.department = :department")
+    @Query("SELECT DISTINCT c.courseId FROM Course c WHERE LOWER(c.department) = LOWER(:department)")
     List<String> findDistinctCourseIdByDepartment(@Param("department") String department);
+
 }

@@ -1,7 +1,9 @@
+/home/ubuntu/projects/UCSD-Registration-Trend/backend/web-backend-java-maven/src/main/java/com/ucsdregistration/web_backend/Controller/CommentController.java
 /home/ubuntu/projects/UCSD-Registration-Trend/backend/web-backend-java-maven/src/main/java/com/ucsdregistration/web_backend/Controller/CourseController.java
 /home/ubuntu/projects/UCSD-Registration-Trend/backend/web-backend-java-maven/src/main/java/com/ucsdregistration/web_backend/Controller/EnrollmentController.java
 /home/ubuntu/projects/UCSD-Registration-Trend/backend/web-backend-java-maven/src/main/java/com/ucsdregistration/web_backend/Controller/HelloWorldController.java
 /home/ubuntu/projects/UCSD-Registration-Trend/backend/web-backend-java-maven/src/main/java/com/ucsdregistration/web_backend/Controller/PasstimeController.java
+/home/ubuntu/projects/UCSD-Registration-Trend/backend/web-backend-java-maven/src/main/java/com/ucsdregistration/web_backend/DTO/CommentCreationDTO.java
 /home/ubuntu/projects/UCSD-Registration-Trend/backend/web-backend-java-maven/src/main/java/com/ucsdregistration/web_backend/DTO/CommentDTO.java
 /home/ubuntu/projects/UCSD-Registration-Trend/backend/web-backend-java-maven/src/main/java/com/ucsdregistration/web_backend/DTO/CourseDTO.java
 /home/ubuntu/projects/UCSD-Registration-Trend/backend/web-backend-java-maven/src/main/java/com/ucsdregistration/web_backend/DTO/CourseEnrollmentSnapshotDTO.java
@@ -14,9 +16,11 @@
 /home/ubuntu/projects/UCSD-Registration-Trend/backend/web-backend-java-maven/src/main/java/com/ucsdregistration/web_backend/Entity/EnrollmentSnapshotId.java
 /home/ubuntu/projects/UCSD-Registration-Trend/backend/web-backend-java-maven/src/main/java/com/ucsdregistration/web_backend/Entity/Passtime.java
 /home/ubuntu/projects/UCSD-Registration-Trend/backend/web-backend-java-maven/src/main/java/com/ucsdregistration/web_backend/Entity/Professor.java
+/home/ubuntu/projects/UCSD-Registration-Trend/backend/web-backend-java-maven/src/main/java/com/ucsdregistration/web_backend/Repository/CommentRepository.java
 /home/ubuntu/projects/UCSD-Registration-Trend/backend/web-backend-java-maven/src/main/java/com/ucsdregistration/web_backend/Repository/CourseRepository.java
 /home/ubuntu/projects/UCSD-Registration-Trend/backend/web-backend-java-maven/src/main/java/com/ucsdregistration/web_backend/Repository/EnrollmentSnapshotRepository.java
 /home/ubuntu/projects/UCSD-Registration-Trend/backend/web-backend-java-maven/src/main/java/com/ucsdregistration/web_backend/Repository/PasstimeRepository.java
+/home/ubuntu/projects/UCSD-Registration-Trend/backend/web-backend-java-maven/src/main/java/com/ucsdregistration/web_backend/Service/CommentService.java
 /home/ubuntu/projects/UCSD-Registration-Trend/backend/web-backend-java-maven/src/main/java/com/ucsdregistration/web_backend/Service/CourseService.java
 /home/ubuntu/projects/UCSD-Registration-Trend/backend/web-backend-java-maven/src/main/java/com/ucsdregistration/web_backend/Service/EnrollmentSnapshotService.java
 /home/ubuntu/projects/UCSD-Registration-Trend/backend/web-backend-java-maven/src/main/java/com/ucsdregistration/web_backend/Service/PasstimeService.java

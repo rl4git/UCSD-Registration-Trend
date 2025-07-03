@@ -31,7 +31,7 @@ public class CourseService {
     }
 
     public List<CourseDTO> findCoursesByProfName(String profFirstName, String profLastNameString){
-        List<Course> courses = courseRepository.findByProfessors_ProfFirstNameAndProfessors_ProfLastName(profFirstName, profLastNameString);
+        List<Course> courses = courseRepository.findByProfessorsName(profFirstName, profLastNameString);
         List<CourseDTO> result = courses.stream()
                                         .map(CourseDTO::new)
                                         .collect(Collectors.toList());
