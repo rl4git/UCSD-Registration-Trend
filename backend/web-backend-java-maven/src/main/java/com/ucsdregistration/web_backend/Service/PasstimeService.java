@@ -16,6 +16,14 @@ public class PasstimeService {
     @Autowired
     private PasstimeRepository passtimeRepository;
 
+    public List<PasstimeDTO> getAllPasstimes(){
+        List<Passtime> passtimes = passtimeRepository.findAll();
+        List<PasstimeDTO> result = passtimes.stream()
+                                            .map(PasstimeDTO::new)
+                                            .collect(Collectors.toList());
+        return result;
+    }
+
     public List<PasstimeDTO> getPasstagByYearAndQuarter(String year, String quarter){
         List<Passtime> passtimes = passtimeRepository.findByYearAndQuarter(Integer.parseInt(year), quarter);
         List<PasstimeDTO> result = passtimes.stream()
