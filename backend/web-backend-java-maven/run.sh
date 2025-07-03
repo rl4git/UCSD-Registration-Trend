@@ -52,11 +52,11 @@ fi
 echo "Starting Spring Boot application with credentials from environment..."
 
 # 开发用：
-/home/ubuntu/projects/UCSD-Registration-Trend/backend/web-backend-java-maven/mvnw spring-boot:run
+# /home/ubuntu/projects/UCSD-Registration-Trend/backend/web-backend-java-maven/mvnw spring-boot:run
 
 # 实际运行：
 # 使用 nohup 在后台运行，并将日志输出到 app.log 文件
 # 确保将 'web-backend-0.0.1-SNAPSHOT.jar' 替换成你实际的 JAR 文件名
-# nohup java -jar /home/ubuntu/projects/UCSD-Registration-Trend/backend/web-backend-java-maven/target/web-backend-0.0.1-SNAPSHOT.jar > app.log 2>&1 &
-# echo "Application started in the background."
-# echo "You can check the log with: tail -f app.log"
+nohup java -jar /home/ubuntu/projects/UCSD-Registration-Trend/backend/web-backend-java-maven/target/web-backend-0.0.1-SNAPSHOT.jar > app.log 2>&1 &
+echo "Application started in the background."
+echo "You can check the log with: tail -f app.log"

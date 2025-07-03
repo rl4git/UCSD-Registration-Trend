@@ -36,6 +36,8 @@ public class Comment {
     @Column(name="dislike_ct")
     private Integer dislikeCt;
 
+    public Comment(){}
+
     public Comment(String courseOfferingId, String profId, String commentContent){
         this.courseOfferingId = courseOfferingId;
         this.profId = profId;

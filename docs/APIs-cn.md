@@ -19,11 +19,11 @@
 
 ### 返回特定 department 下的全部 course_id 列表
 
-- **Endpoint**: `GET /api/courses/courseId/by-department`
+- **Endpoint**: `GET /api/courses/{department}/ids`
 - **参数**：
   - `department`: （必填）系的标识符，例如 `CSE`, `MATH`
 - **完整请求示例**：
-  - `/api/courses/courseId/by-department?department=CSE`
+  - `api.ucsdregistration.com/api/courses/CSE/ids`
 - **成功返回 (200 OK)**
   ```json
   [
@@ -43,12 +43,12 @@
 
 ### 获取特定教授的全部课程信息
 
-- **Endpoint**: `GET /api/courses/by-prof-name`
+- **Endpoint**: `GET /api/courses/search`
 - **参数(查询参数 Query Parameters)**
   - `profFirstName`: 教授名
   - `profLastName`: 教授姓
 - **完整请求示例**:
-  - `/api/courses/by-prof-name?profFirstName=Richard&profLastName=Averitt`
+  - `/api/courses/search?profFirstName=Richard&profLastName=Averitt`
 - **成功返回 (200 OK)**:
   ```json
   [
@@ -91,13 +91,13 @@
 
 ### 返回特定课程的信息（给定 department + course id）
 
-- **Endpoint**: `GET /api/courses/by-department-course-id`
-- **参数(查询参数 Query Parameters)**
+- **Endpoint**: `GET /api/courses/{department}/{courseId}`
+- **参数**
   - `department`: （必填）系的标识符，例如 `CSE`, `MATH`
-  - `course_id`: （必填）课程 id，例如 `120`, `110`
+  - `courseId`: （必填）课程 id，例如 `120`, `110`
 - **完整请求示例**:
   - 忽略大小写（后端会统一转为小写比较）
-  - `/api/courses/by-department-courseid?department=CSE&courseId=120`
+  - `/api/courses/CSE/120`
 - **成功返回 (200 OK)**:
   ```json
   [
@@ -140,12 +140,12 @@
 
 ### 获取特定系课程的注册数据
 
-- **Endpoint**: `/api/enrollments/`
-- **参数(查询参数 Query Parameters)**
+- **Endpoint**: `GET /api/enrollments/{courseOfferingId}`
+- **参数(Path Variables)**
   - `course_offering_id`: 课程的主键字符串，可以根据其他接口获取
 - **完整请求示例**:
   - 忽略大小写（后端会统一转为小写比较）
-  - `/api/enrollments/?courseOfferingId=08bb2302174fab75dd2f588e20aa9226ff8d99412c634ace7785e843ebfe52eb`
+  - `/api/enrollments/08bb2302174fab75dd2f588e20aa9226ff8d99412c634ace7785e843ebfe52eb`
 - **成功返回 (200 OK)**:
   ```json
   [
@@ -172,115 +172,83 @@
   ```json
   {}
   ```
+---
+
+### 获取Passtimes和Passtag
+- **Endpoint**: `GET /api/passtimes/{year}/{quarter}`
+- **参数(Path Variable)**
+  - `year`: 年份，必填
+  - `quarter`: 季度，必填
+- **完整请求示例**: `/api/passtimes/2024/fall`
+- **成功返回**
+  ```json
+
+  ```
+
 
 ---
 
-## 以下关于评论的接口尚未实现
-
 ### 获取特定课程（教授）的评论
 
-- **Endpoint**: `GET /comments`
+- **Endpoint**: `GET /api/comments/search`
 - **参数(查询参数 Query Parameters)**
-  - `department`: （必填）系的标识符，例如 `CSE`, `MATH`
-  - `course_id`: （必填）课程 id，例如 `120`, `110`
-  - `professor`: （可选）教授名字，格式为 `prof_first_name prof_last_name`
+  - `courseOfferingId`: 课程主键id，注意不是课程id。
+  - `profId`: (可选): 教授主键id，注意不是教授名。可选。
 - **完整请求示例**:
   - 忽略大小写（后端会统一转为小写比较）
-  - `/comments?department=CSE&course_id=120`
-  - `/comments?department=CSE&course_id=120&professor=Geoffrey%20Voelker`
+  - `/api/comments/search?courseOfferingId=08bb2302174fab75dd2f588e20aa9226ff8d99412c634ace7785e843ebfe52eb`
+  - `api.ucsdregistration.com/api/comments/search?courseOfferingId=08bb2302174fab75dd2f588e20aa9226ff8d99412c634ace7785e843ebfe52eb&profId=7665d26836e9dcc64aec6a1f10bf871e9452e2792738870ff6dc145a6919c229`
 - **成功返回 (200 OK)**
   ```json
-  {
-    "department": "CSE",
-    "course_id": "120",
-    "comments": [
-      {
-        "comment_id": "asdjbaskndjafsbams",
-        "professor": "prof_first_name prof_last_name",
-        "year": 2024,
-        "quarter": "Fall",
-        "comment_date": "2025-05-11",
-        "comment": "comment content",
-        "rate": 2.5,
-        "like": 5,
-        "dislike": 5
-      },
-      {
-        "comment_id": "fdjgnsdujdhknkasdka",
-        "professor": "prof_first_name prof_last_name",
-        "year": 2024,
-        "quarter": "Fall",
-        "comment_date": "2025-06-12",
-        "comment": "comment content",
-        "rate": 5.0,
-        "like": 12,
-        "dislike": 8
-      }
-    ]
-  }
+  
   ```
 - **失败返回 (400 )**:
   ```json
-  {
-    "error": "错误信息，例如 department cannot be empty."
-  }
+  
   ```
 
 ### 上传用户评价
 
-- **Endpoint**: `POST /comments`
+- **Endpoint**: `POST /api/comments`
 - **请求体 Request Body**
   ```json
   {
-    "department": "CSE",
-    "course_id": "120",
-    "professor": "prof_first_name prof_last_name",
-    "year": 2024,
-    "quarter": "Fall",
-    "rate": 2.5,
-    "comment": "This course sucks."
+    "courseOfferingId": "课程主键id",
+    "profId": "教授主键id",
+    "commentContent": "评论内容"
   }
   ```
 - **成功响应 (200 OK)**
   ```json
-  {
-    "message": "Comment created.",
-    "comment_id": "asdnkhabjdsna"
-  }
+  
   ```
 - **失败响应 (400)**
   ```json
-  {
-    "message": "Request body incorrect format."
-  }
+  
   ```
 
 ### 给评论点赞
 
 - **注释**：点赞和点踩都要加延迟，不然有人恶意连续快速点击点赞点踩，每一次点击都发一个请求就卡死了。
-- **Endpoint**: `POST /comments/{comment_id}/likes`
+- **Endpoint**: `PUT /api/comments/{commentId}/like`
 - **参数 (路径参数)**
 
-  - `comment_id`: 必选
+  - `commentId`: 必选
 
 - **成功响应**:
   ```json
-  {
-    "message": "Like added successfully."
-  }
+  
   ```
 
 ### 给评论点踩
 
 - **注释**：点赞和点踩都要加延迟，不然有人恶意连续快速点击点赞点踩，每一次点击都发一个请求就卡死了。
-- **Endpoint**: `POST /comments/{comment_id}/unlikes`
+- **Endpoint**: `PUT /api/comments/{commentId}/dislike`
 - **参数 (路径参数)**
 
-  - `comment_id`: 必选
+  - `commentId`: 必选
 
 - **成功响应**:
   ```json
-  {
-    "message": "Unlike added successfully."
-  }
+  
   ```
