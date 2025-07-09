@@ -1,133 +1,132 @@
------
+### Introduction
 
-## Introduction
+This folder contains scripts for cleaning data and uploading it to RDS.
 
-This folder contains scripts for **cleaning data** and **uploading it to AWS RDS**.
+You should run these scripts once after each registration season, following the order below, to update the database.
 
-You should run these scripts once after each registration period to **update the database**.
+**Folder Contents:**
 
-### Folder Contents:
+- `./data_cleaning/`: Contains scripts for cleaning raw data from S3 and saving it back to S3.
+- `./cleaned_data/`: Stores data downloaded from S3 (this is the cleaned data, ready for direct upload to RDS).
+- `./mysql_data_update/`: Contains scripts for uploading the data from `./cleaned_data/` to RDS.
 
-  - `./data_cleaning/`: Contains scripts for cleaning raw data from S3 and saving the cleaned data back to S3.
-  - `./cleaned_data/`: Stores data downloaded from S3 (cleaned and ready for direct upload to RDS).
-  - `./mysql_data_update/`: Contains scripts for uploading the data from `./cleaned_data/` to RDS.
+---
 
------
+### 1\. Clean Data
 
-## 1\. Clean Data
+#### Clean Raw Data
 
-### Clean Raw Data
+1.  First, download the raw data for the required quarter from the original database to S3.
 
-1.  **Download raw data from the original database to S3 for the required quarter.**
+    - Original database link: `https://github.com/UCSD-Historical-Enrollment-Data/UCSDHistEnrollData.git`
+    - S3 path: `ucsd/raw/{year}{Quarter}/*.csv` (The first letter of "Quarter" should be capitalized, e.g., `ucsd/raw/2024Winter/....csv`)
 
-      * Original database link: `https://github.com/UCSD-Historical-Enrollment-Data/UCSDHistEnrollData.git`
-      * S3 path: `ucsd/raw/{year}{Quarter}/*.csv` (e.g., `ucsd/raw/2024Winter/....csv`, with the first letter of the Quarter capitalized).
+2.  Open the first Python notebook: `./data_cleaning/Data Cleaning ...`
 
-2.  **Open the first Python notebook: `./data_cleaning/Data Cleaning ...`**
+    - In the initial cells, set the `access key`, `secret key`, `region`, and `bucket name` needed for AWS S3 connection.
+    - Scroll down and check the basic passtime settings. Modify the year, quarter, and passtime to match your raw data.
 
-      * In the initial cells, set your AWS S3 connection details: `access key`, `secret key`, `region`, and `bucket name`.
-      * Scroll down and **verify the `passtimes` configuration**. Modify the year, quarter, and passtime to match your raw data.
+3.  Run the entire `Data Cleaning` notebook. The script will read the necessary raw data from S3 based on the passtimes, clean it, and then save it back to S3.
 
-3.  **Run the entire `Data Cleaning` notebook.** The script will read the necessary raw data from S3 based on your `passtimes` settings, clean it, and save it back to S3.
+4.  The data should be saved to:
 
-4.  **Cleaned data will be saved to:**
+    - Cleaned data for each quarter: `ucsd/cleaned/{}year{quarter}/*.csv`
+    - Summary of cleaned data for each quarter: `ucsd/final/fianl/*.csv`
+    - Passtimes (JSON format): `ucsd/final/passtimes.json`
+    - Passtimes (CSV format): `ucsd/final_table/passtimes/*.csv`
 
-      * Cleaned data for each quarter: `ucsd/cleaned/{}year{quarter}/*.csv`
-      * Aggregated cleaned data for all quarters: `ucsd/final/final/*.csv`
-      * Passtimes (JSON format): `ucsd/final/passtimes.json`
-      * Passtimes (CSV format): `ucsd/final_table/passtimes/*.csv`
+    > For more information about the data, please read the notebook.
 
-    > For more details on the data, please refer to the notebook.
+#### Make Tables
 
-### Make Tables
+1.  Open the second notebook: `./data_cleaning/Table Creation ...`
 
-1.  **Open the second notebook: `./data_cleaning/Table Creation ...`**
+    - In the initial cells, set the `access key`, `secret key`, `region`, and `bucket name` needed for AWS S3 connection.
 
-      * In the initial cells, set your AWS S3 connection details: `access key`, `secret key`, `region`, and `bucket name`.
+2.  Run the notebook. The script will read the necessary data from S3 based on passtimes, clean it, and then save it back to S3.
 
-2.  **Run the notebook.** The script will read the necessary data from S3 based on `passtimes`, process it into the required table structures, and save it back to S3.
+3.  The data should be saved to:
 
-3.  **Table data will be saved to:**
+    - Data for each table: `ucsd/final_table/{corresponding_table_name}/*.csv`
 
-      * Data for each table: `ucsd/final_table/{table_name}/*.csv`
+---
 
------
+### 2\. Download Data to EC2
 
-## 2\. Download Data to EC2
+- Save the table data to `./cleaned_data/ucsd/final_table/{corresponding_table_name}/*.csv`.
+- You can manually download and upload the data or use the **AWS CLI**.
 
-  - Save the table data to `./cleaned_data/ucsd/final_table/{corresponding_table_name}/*.csv`.
-  - You can download and upload manually or use the AWS CLI.
+#### AWS CLI Configuration
 
-### AWS CLI Configuration
+- **Install AWS CLI**
 
-  - **Install AWS CLI**
+  ```bash
+  # Add 'sudo' if you encounter permission issues.
+  # Update package manager
+  sudo apt update
 
-    ```bash
-    # If you encounter permission issues, prepend 'sudo' to the command.
-    # Update package manager
-    sudo apt update
+  # Install awscli, which provides a series of commands to interact with AWS.
+  # [Install or update the latest version of the AWS CLI - AWS Command Line Interface](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
+  # According to the AWS official documentation, run the following commands in order:
+  curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+  sudo unzip awscliv2.zip
+  sudo ./aws/install
+  ```
 
-    # Install awscli, which provides commands for interacting with AWS.
-    # [Install or update the latest version of the AWS CLI - AWS Command Line Interface](https://docs.aws.com/cli/latest/userguide/getting-started-install.html)
-    # As described on the AWS official website, run the following commands sequentially:
-    curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-    sudo unzip awscliv2.zip
-    sudo ./aws/install
-    ```
+- Go to **AWS IAM** and create a new role for AWS CLI.
 
-  - **Go to AWS IAM and create a new role for AWS CLI.**
+  - It needs `aws s3 read only` permission.
+  - It needs `aws rds full access` permission.
 
-      * Requires `aws s3 read only` permissions.
-      * Requires `aws rds full access` permissions.
+- Create an **access key** to get your access key and secret key.
 
-  - **Create an access key to obtain your access key and secret key.**
+- Go back to EC2 and enter the command `aws configure`. Then, input the following in order:
 
-  - **Back on your EC2 instance, run `aws configure` and enter the following:**
+  - AWS access key
+  - AWS secret key
+  - Region
+  - Return data format (optional, e.g., `json`)
 
-      * AWS Access Key ID
-      * AWS Secret Access Key
-      * Default region name
-      * Default output format (optional, e.g., `json`)
+- **Delete old data from the local path**, as AWS CLI does not overwrite files with different names by default.
 
-  - **Delete old data from the local path, as AWS CLI does not overwrite files with different names by default.**
+- **Download data from S3**
 
-  - **Download data from S3**
+  ```bash
+  # You can directly execute the script
+  ./cleaned_data/download_s3_data.sh
 
-    ```bash
-    # You can execute the script directly
-    ./cleaned_data/download_s3_data.sh
+  # Or manually execute the commands
+  # Note: AWS CLI does not automatically delete old files; you need to manually delete them first.
+  # Download a single file
+  aws s3 cp s3://your_bucket_name/path/file_name local_path/file_name
+  # Download a folder
+  aws s3 cp s3://your_bucket_name/path/ local_path/ --recursive
+  ```
 
-    # Or execute commands manually
-    # Note: AWS CLI does not proactively delete old files; you need to delete them manually first.
-    # Download a single file
-    aws s3 cp s3://your-bucket-name/path/to/file.csv /local/path/to/file.csv
-    # Download a folder recursively
-    aws s3 cp s3://your-bucket-name/path/to/folder/ /local/path/to/folder/ --recursive
-    ```
+---
 
------
-
-## 3\. Run Script to Upload Data to RDS
+### 3\. Run Script to Upload Data to RDS
 
 > For the RDS table structure, please refer to [RDS table structure](https://www.google.com/search?q=../docs/table_structure.md).
 
-This process reads files within `../data/ucsd` and updates the MySQL tables, including:
+This script reads files from `../data/ucsd` and **replaces** the corresponding MySQL tables. This includes:
 
-  - `../cleaned_data/ucsd/final_table/courses/`
-  - `../cleaned_data/ucsd/final_table/professors/`
-  - `../cleaned_data/ucsd/final_table/courses_professors/`
-  - `../cleaned_data/ucsd/final_table/enrollment_snapshots/`
-  - `../cleaned_data/ucsd/final_table/passtimes.csv`
-    > **Note**: The files in `../data/ucsd` should be the latest downloaded from S3. If they are not up-to-date, please update them first.
+- `../cleaned_data/ucsd/final_table/courses/`
+- `../cleaned_data/ucsd/final_table/professors/`
+- `../cleaned_data/ucsd/final_table/courses_professors/`
+- `../cleaned_data/ucsd/final_table/enrollment_snapshots/`
+- `../cleaned_data/ucsd/final_table/passtimes.csv`
 
-### Process
+> **Important**: The files in `../data/ucsd` should be the latest ones downloaded from S3. If they're not, please update the data first.
 
-  - **Activate the conda environment:** `conda activate mysql_import`
-  - If you are not on my local machine, you can recreate the environment using `environment.yml`.
-  - **Run `python mysql_update.py`**
-      * **Note**: This script will first upload local data to temporary tables, then execute `INSERT ... ON DUPLICATE KEY UPDATE` to refresh the existing tables.
-      * **Note**: This script relies on database connection settings in your environment variables. Ensure that your environment variables or current `.env` file include:
-          * `DB_HOST=`
-          * `DB_NAME=`
-          * `DB_USER=`
-          * `DB_PASS=`
+#### Process
+
+- Activate the conda environment: `conda activate mysql_import`
+- If you're not on my local machine, you can recreate the environment using `environment.yml`.
+- Run `python mysql_update.py`
+  - Note that this script will first upload local data to **temporary tables**, and then run `INSERT ... ON DUPLICATE` to update the existing tables.
+  - Be aware that this script relies on database connection settings in your **environment variables**. Ensure that your environment variables or current `.env` file include:
+    - `DB_HOST=`
+    - `DB_NAME=`
+    - `DB_USER=`
+    - `DB_PASS=`

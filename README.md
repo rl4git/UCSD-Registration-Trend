@@ -1,6 +1,6 @@
 # UCSD Registration Trend
 
-![Sample Course Registration Trend For CSE 120](./docs/GraphSample.png)
+![Sample Course Registration Trend For CSE 120](./docs/graph_sample.png)
 
 > Sample Course Registration Trend For CSE 120
 

@@ -77,11 +77,11 @@
   - aws secret key
   - region
   - 返回数据格式，可选，比如 json
-<<<<<<< HEAD
-- **将旧数据从本地路径删除，因为AWS cli 默认不会覆盖不同名的文件**
-=======
->>>>>>> b61153ba0758ade8193cb74a23f58dbd73244644
+    <<<<<<< HEAD
+- # **将旧数据从本地路径删除，因为 AWS cli 默认不会覆盖不同名的文件**
+  > > > > > > > b61153ba0758ade8193cb74a23f58dbd73244644
 - 从 S3 下载数据
+
   ```bash
   # 可以直接执行脚本
   ./cleaned_data/download_s3_data.sh
@@ -96,7 +96,7 @@
 
 ### 3. 运行脚本，上传数据至 RDS
 
-> 对于RDS表结构，请参阅 [RDS table structure]("../docs/table_structure.md")
+> 对于 RDS 表结构，请参阅 [RDS table structure]("../docs/table_structure.md")
 
 读取 `../data/ucsd` 内的文件，替换 MySQL 的表，包括
 
@@ -113,7 +113,7 @@
 - 如果不是我的本机，可以根据`enviroment.yml`重建环境
 - 运行`python mysql_update.py`
   - 注意，此脚本会先将本地数据上传至临时表，而后运行 `INSERT ... ON DUPLICATE` 来更新旧表。
-  - 注意，此脚本依赖于环境变量中的数据库链接设置，保证你在环境变量，或者当前的.env文件中包含:
+  - 注意，此脚本依赖于环境变量中的数据库链接设置，保证你在环境变量，或者当前的.env 文件中包含:
     - `DB_HOST=`
     - `DB_NAME=`
     - `DB_USER=`
