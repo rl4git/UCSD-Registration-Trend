@@ -41,11 +41,11 @@ While taking COGS-108, I came across a dataset that tracks course enrollment act
 
 ## 📁 Project Structure
 
-- `./docs`: Documentation including API references, database schema, and personal development notes.
-- `./data_cleaning`: Python notebooks and scripts for data cleaning and analysis. Also includes automation scripts that upload cleaned data to the RDS database.
-- `./backend`: Backend source code built with Spring Boot and Maven.
-- `./frontend`: Modern frontend implementation using ReactJS.
-- `./old_frontend`: The original version of the frontend using vanilla HTML, CSS, and JS. Kept for reference purposes only.
+- **[docs](./docs)**: Documentation including API references, database schema, and personal development notes.
+- **[data](./data)**: Python notebooks and scripts for data cleaning and analysis. Also includes automation scripts that upload cleaned data to the RDS database.
+- **[backend](./backend)**: Backend source code built with Spring Boot and Maven.
+- **[frontend](./frontend)**: Modern frontend implementation using ReactJS.
+- **[old frontend](./old_frontend)**: The original version of the frontend using vanilla HTML, CSS, and JS. Kept for reference purposes only.
 
 ---
 
@@ -72,3 +72,5 @@ This project is maintained by UCSD students and periodically scrapes raw registr
 If you're interested in the analysis behind UCSD course registration trends, here's an early-stage exploratory notebook that includes data parsing, cleaning, exploratory analysis, machine learning, and forecasting:
 
 👉 [Colab Notebook](https://colab.research.google.com/drive/1NbM8z0QhziBPPLQWjJMJBkh18vvzOBN7?usp=sharing#scrollTo=yMJmggrMp9Uo)
+
+> This is an old data analyze notebook using numpy and pandas which made by me and classmates during University. If you want to check the data cleaning process for this project, please check [data cleaning scripts](./data)
