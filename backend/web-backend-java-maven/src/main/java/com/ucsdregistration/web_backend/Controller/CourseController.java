@@ -46,4 +46,9 @@ public class CourseController {
         return courseService.getCourseChartData(department, courseId);
     }
     
+    @GetMapping("/{department}/{courseId}/chart/old")
+    public List<CourseChartOldDTO> getCourseChartByDepartmentAndCourseIdOld(@PathVariable("department") String department, @PathVariable("courseId") String courseId) {
+        return courseService.getCourseChartDataOld(department, courseId);
+    }
+
 }

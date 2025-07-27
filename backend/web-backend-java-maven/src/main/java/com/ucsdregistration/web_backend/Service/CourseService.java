@@ -11,11 +11,13 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.Objects;
 
 @Service
 public class CourseService {
@@ -79,6 +81,17 @@ public class CourseService {
         Map<String, List<EnrollmentSnapshot>> snapShotsById = allSnapshots.stream()
             .collect(Collectors.groupingBy(snapshot -> snapshot.getId().getCourseOfferingId()));
         
+        // 获取所有 passtime 和 passtag，尽量减少数据库交互
+        Map<String, List<Passtime>> passtimeCache = new HashMap<>();
+        for (Course course : courseList) {
+            String cacheKey = course.getYear() + course.getQuarter();
+            // 只有当缓存中没有时，才查询数据库
+            passtimeCache.computeIfAbsent(cacheKey, k -> 
+                passtimeRepository.findByYearAndQuarter(course.getYear(), course.getQuarter())
+            );
+        }
+
+        // 返回结果
         List<CourseChartDTO> courseCharts = new ArrayList<>();
 
         // 对每一门课，构建CourseChart
@@ -90,7 +103,7 @@ public class CourseService {
 
             // 获取Passtime数据，需要根据日期进行排序
             // 已经在数据库层面进行了排序
-            List<Passtime> passtimes = passtimeRepository.findByYearAndQuarter(course.getYear(), course.getQuarter());
+            List<Passtime> passtimes = passtimeCache.get(course.getYear()+course.getQuarter());
 
             CourseChartDTO dto = new CourseChartDTO();
             dto.setDepartment(department);
@@ -136,5 +149,88 @@ public class CourseService {
         }
         
         return courseCharts;
+    }
+
+    /**
+     * 这个方法单纯只是为了旧的网页api设计的
+     * 这里！我使用的是 CourseChartOldDTO
+        这个DTO是为了旧网页适配的
+        如果未来打算在新网页使用这个方法
+        就去修改mergeCourseGroup的最后，让他返回CourseChartDTO
+     * @param department
+     * @param courseId
+     * @return
+     * 
+     */
+    private record GroupingKey(String quarter, Set<ProfessorDTO> professors) {}
+    public List<CourseChartOldDTO> getCourseChartDataOld(String department, String courseId){
+        List<CourseChartDTO> originalCourses = this.getCourseChartData(department, courseId);
+        
+        if (originalCourses == null || originalCourses.isEmpty()){
+            return Collections.emptyList();
+        }
+
+        // 对于Quarter和professor相同的课程，进行整合（对于数字，平均数处理）
+        Map<GroupingKey, List<CourseChartDTO>> groupedCourses = originalCourses.stream()
+            .collect(Collectors.groupingBy(
+                dto -> new GroupingKey(dto.getQuarter(), dto.getProfessors())
+            ));
+        
+        return groupedCourses.values().stream()
+            .map(this::mergeCourseGroup)
+            .collect(Collectors.toList());
+    }
+
+    // 整合每一门 quarter 和 professor 相同的课程
+    private CourseChartOldDTO mergeCourseGroup(List<CourseChartDTO> group){
+        if (group == null || group.isEmpty())
+            return null;
+        // if (group.size() == 1)
+        //     return group.get(0);
+        
+        CourseChartDTO template = group.get(0);
+        int groupSize = group.size();
+
+        // 计算平均总size
+        int avfTotal = (int) group.stream()
+            .mapToInt(CourseChartDTO::getTotal)
+            .average()
+            .orElse(0.0);
+        
+        // 计算平均注册数据
+        List<Integer> avgAvailable = new ArrayList<>();
+        List<Integer> avgEnrolled = new ArrayList<>();
+        List<Integer> avgWaitlist = new ArrayList<>();
+        
+        int listSize = template.getAvailable().size();
+        for (int i=0; i<listSize; i++){
+            // 对每个位置i，计算所有课程在该位置上的值的总和
+            final int index = i;
+            double sumAvailable = group.stream().mapToDouble(dto -> dto.getAvailable().get(index)).sum();
+            double sumEnrolled = group.stream().mapToDouble(dto -> dto.getEnrolled().get(index)).sum();
+            double sumWaitlist = group.stream().mapToDouble(dto -> dto.getWaitlist().get(index)).sum();
+
+            avgAvailable.add((int) Math.round(sumAvailable / groupSize));
+            avgEnrolled.add((int) Math.round(sumEnrolled / groupSize));
+            avgWaitlist.add((int) Math.round(sumWaitlist / groupSize));
+        }
+
+        // 这里！我使用的是 CourseChartOldDTO
+        // 这个DTO是为了旧网页适配的
+        // 如果未来打算在新网页使用这个方法
+        // 就修改这里
+        CourseChartOldDTO dto = new CourseChartOldDTO();
+
+        dto.setCourseId(template.getDepartment() + " " + template.getCourseId());
+        dto.setAcademicQuarter(template.getQuarter());
+        dto.setCourseSize(avfTotal);
+        dto.setProfessorFirstName(template.getInstructor());
+        dto.setProfessorLastName("");
+        dto.setProfessorMiddleName("");
+        dto.setEnrolledStudents(avgEnrolled);
+        dto.setWaitlistCount(avgWaitlist);
+        dto.setAvailableSpots(avgAvailable);
+
+        return dto;
     }
 }
