@@ -105,10 +105,12 @@ class CourseTab {
       return;
     }
 
-    const url = `https://ucsdregistration.com/courses/${encodeURIComponent(
+    const url = `https://api.ucsdregistration.com/api/courses/${encodeURIComponent(
       department
-    )}%20${encodeURIComponent(courseId)}`;
-    // const url = `http://localhost:7000/courses/${encodeURIComponent(department)}%20${encodeURIComponent(courseId)}`;
+    )}/${encodeURIComponent(courseId)}/chart/old`;
+    // const url = `http://localhost:8080/api/courses/${encodeURIComponent(
+    //   department
+    // )}/${encodeURIComponent(courseId)}/chart/old`;
 
     const cacheKey = `${department}-${courseId}`;
 

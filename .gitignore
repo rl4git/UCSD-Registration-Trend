@@ -12,6 +12,9 @@ conda-meta/
 
 __pycache__/
 
+target/
+*.class
+
 ### .gitignore from spring boot initializer
 
 HELP.md

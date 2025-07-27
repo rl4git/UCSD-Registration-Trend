@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: com.ucsdregistration.web_backend.WebBackendApplicationTests
--------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 15.02 s -- in com.ucsdregistration.web_backend.WebBackendApplicationTests
