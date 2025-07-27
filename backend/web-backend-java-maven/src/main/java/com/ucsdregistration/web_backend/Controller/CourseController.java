@@ -6,6 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Collections;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 
 @RestController
@@ -23,19 +26,24 @@ public class CourseController {
     }
 
     @GetMapping("/search")
-    public List<CourseDTO> getMethodName(@RequestParam String profFirstName, @RequestParam String profLastName) {
+    public List<CourseDTO> getCoursesByProfessorName(@RequestParam String profFirstName, @RequestParam String profLastName) {
         List<CourseDTO> courses = courseService.findCoursesByProfName(profFirstName, profLastName);
         return courses;
     }
 
     @GetMapping("/departments")
-    public List<String> getMethodName() {
+    public List<String> getAlldepartments() {
         return courseService.getAllDepartments();
     }
 
     @GetMapping("/{department}/ids")
-    public List<String> getMethodName(@PathVariable("department") String department) {
+    public List<String> getCourseIdByDepartment(@PathVariable("department") String department) {
         return courseService.getCourseIdByDepartment(department);
+    }
+
+    @GetMapping("/{department}/{courseId}/chart")
+    public List<CourseChartDTO> getCourseChartByDepartmentAndCourseId(@PathVariable("department") String department, @PathVariable("courseId") String courseId) {
+        return courseService.getCourseChartData(department, courseId);
     }
     
 }

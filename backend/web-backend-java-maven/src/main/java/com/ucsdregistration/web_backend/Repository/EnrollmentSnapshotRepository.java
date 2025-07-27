@@ -13,4 +13,7 @@ import java.util.List;
 @Repository
 public interface EnrollmentSnapshotRepository extends JpaRepository<EnrollmentSnapshot, EnrollmentSnapshotId> {
     List<EnrollmentSnapshot> findById_CourseOfferingId(String courseOfferingId);
+
+    // 它会根据一个课程ID列表，一次性查询出所有相关的 EnrollmentSnapshot 记录
+    List<EnrollmentSnapshot> findById_CourseOfferingIdIn(List<String> courseOfferingIds);
 }

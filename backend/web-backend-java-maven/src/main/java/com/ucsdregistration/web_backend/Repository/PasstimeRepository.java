@@ -11,7 +11,7 @@ import java.util.List;
 @Repository
 public interface PasstimeRepository extends JpaRepository<Passtime, String> {
 
-    @Query("SELECT p FROM Passtime p WHERE p.year = :year AND LOWER(p.quarter) = LOWER(:quarter)")
+    @Query("SELECT p FROM Passtime p WHERE p.year = :year AND LOWER(p.quarter) = LOWER(:quarter) ORDER BY p.passtime ASC")
     List<Passtime> findByYearAndQuarter(@Param("year") Integer year, @Param("quarter") String quarter);
 
 }
