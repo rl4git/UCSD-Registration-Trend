@@ -13,6 +13,7 @@ env:
   JAVA_VERSION: "17" # 你的项目使用的 Java 版本
   DOCKER_IMAGE_NAME: cucucucu4docker/ucsd-web-backend # Docker Hub 上的镜像名称（你的Docker ID/仓库名）
   DOCKER_IMAGE_TAG: latest # 镜像标签
+  PROJECT_DEPLOY_SCRIPT: /home/ubuntu/projects/ucsd-web-backend/
 
 jobs:
   build-and-deploy:
@@ -59,7 +60,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }} # EC2 服务器的 SSH 私钥 (部署密钥)
           script: |
             # 切换到 deploy.sh 脚本所在的目录
-            cd /project/ucsd-web-backend/ # 确保这个路径在你的EC2上是正确的
+            cd ${{ env.PROJECT_DEPLOY_SCRIPT }} # 确保这个路径在你的EC2上是正确的
             # 执行部署脚本，并将数据库凭据作为环境变量传递给脚本
             # 这些环境变量会被 deploy.sh 中的 docker run 命令接收
             UCSD_REG_DB_URL="${{ secrets.DB_URL }}" \
