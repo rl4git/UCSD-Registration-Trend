@@ -12,8 +12,7 @@ env:
   # 定义一些环境变量，方便在工作流中重复使用
   JAVA_VERSION: "17" # 你的项目使用的 Java 版本
   DOCKER_IMAGE_NAME: cucucucu4docker/ucsd-web-backend # Docker Hub 上的镜像名称（你的Docker ID/仓库名）
-  DOCKER_IMAGE_TAG: latest # 镜像标签
-  PROJECT_DEPLOY_SCRIPT: /home/ubuntu/projects/ucsd-web-backend/
+  DOCKER_IMAGE_TAG: latest # 镜像标签 (注意: 建议在生产环境使用如 ${{ github.sha }} 的具体标签)
 
 jobs:
   build-and-deploy:
@@ -29,41 +28,178 @@ jobs:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: "temurin" # 推荐使用 Temurin OpenJDK
 
+      - name: Cache Maven dependencies # 优化: 添加Maven依赖缓存，提高构建速度
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/backend/web-backend-java-maven/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
       - name: Build Spring Boot JAR # 步骤3: 构建 Spring Boot JAR 包
-        # 你的 Spring Boot 项目的 pom.xml 所在路径
-        # 假设你的项目结构是 repository_root/backend/web-backend-java-maven/pom.xml
         run: |
           cd backend/web-backend-java-maven
           mvn clean package -DskipTests
-        # 注意: 这里的 mvn package 会在 backend/web-backend-java-maven/target/ 生成 JAR 包
 
-      - name: Docker Login # 步骤4: 登录 Docker Hub
+      - name: Docker Login (GitHub Actions Runner) # 步骤4: 登录 Docker Hub (在Runner上)
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKER_USERNAME }} # GitHub Secrets 中存储的 Docker Hub 用户名
-          password: ${{ secrets.DOCKER_PASSWORD }} # GitHub Secrets 中存储的 Docker Hub 密码
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and push Docker image # 步骤5: 构建并推送 Docker 镜像
+      - name: Build and push Docker image # 步骤5: 构建并推送 Docker 镜像 (在Runner上)
         run: |
-          # 切换到 Dockerfile 所在的目录 (与 JAR 包同级)
           cd backend/web-backend-java-maven
-          # 构建 Docker 镜像，并打上标签
           docker build -t ${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }} .
-          # 推送镜像到 Docker Hub
           docker push ${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }}
 
-      - name: Deploy to EC2 # 步骤6: 部署到 EC2 服务器
-        uses: appleboy/ssh-action@master # 使用一个成熟的 SSH Action 来连接和执行命令
+      - name: Deploy to EC2 # 步骤6: 部署到 EC2 服务器 - 所有逻辑都在这里
+        uses: appleboy/ssh-action@master # 使用 SSH Action 连接 EC2
         with:
           host: ${{ secrets.EC2_HOST }} # EC2 服务器的 IP 地址或域名
-          username: ${{ secrets.EC2_USERNAME }} # EC2 服务器的 SSH 用户名 (如 'ubuntu')
-          key: ${{ secrets.EC2_SSH_KEY }} # EC2 服务器的 SSH 私钥 (部署密钥)
+          username: ${{ secrets.EC2_USERNAME }} # EC2 服务器的 SSH 用户名
+          key: ${{ secrets.EC2_SSH_KEY }} # EC2 服务器的 SSH 私钥
+          # 使用 env 参数传递环境变量给远程脚本环境
+          env:
+            UCSD_REG_DB_URL: ${{ secrets.DB_URL }}
+            UCSD_REG_DB_USER: ${{ secrets.DB_USER }}
+            UCSD_REG_DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+            # 将DOCKER_IMAGE_NAME和DOCKER_IMAGE_TAG也传给远程，确保一致性
+            DOCKER_IMAGE_NAME_REMOTE: ${{ env.DOCKER_IMAGE_NAME }}
+            DOCKER_IMAGE_TAG_REMOTE: ${{ env.DOCKER_IMAGE_TAG }}
           script: |
-            # 切换到 deploy.sh 脚本所在的目录
-            cd ${{ env.PROJECT_DEPLOY_SCRIPT }} # 确保这个路径在你的EC2上是正确的
-            # 执行部署脚本，并将数据库凭据作为环境变量传递给脚本
-            # 这些环境变量会被 deploy.sh 中的 docker run 命令接收
-            UCSD_REG_DB_URL="${{ secrets.DB_URL }}" \
-            UCSD_REG_DB_USER="${{ secrets.DB_USER }}" \
-            UCSD_REG_DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
-            sudo ./deploy.sh
+            #!/bin/bash
+            # 将整个 deploy.sh 的内容粘贴到这里
+            # 注意：这里的环境变量 (UCSD_REG_DB_URL, DOCKER_IMAGE_NAME_REMOTE等) 将由 `appleboy/ssh-action` 的 `env` 传递
+
+            # --- 配置 ---
+            APP_PORT=8080
+            CONTAINER_NAME="ucsd-web-backend-container"
+            # Docker Hub 镜像信息将从外部 env 传入 DOCKER_IMAGE_NAME_REMOTE 和 DOCKER_IMAGE_TAG_REMOTE
+
+            # --- 函数定义 ---
+
+            # 检查环境变量是否存在
+            check_env_var() {
+              local var_name="$1"
+              if [ -z "${!var_name}" ]; then
+                echo "ERROR: Environment variable '$var_name' is not set."
+                exit 1
+              fi
+            }
+
+            # 停止并移除旧容器的函数
+            stop_and_remove_old_container() {
+              echo "Checking for existing Docker container named $CONTAINER_NAME..."
+              if sudo docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
+                echo "Found existing Docker container $CONTAINER_NAME. Stopping and removing it..."
+                # 尝试优雅停止，给应用30秒时间关闭
+                if ! sudo docker stop -t 30 "$CONTAINER_NAME"; then
+                  echo "WARN: Container $CONTAINER_NAME did not stop gracefully. Forcing removal..."
+                  sudo docker rm -f "$CONTAINER_NAME"
+                else
+                  sudo docker rm "$CONTAINER_NAME"
+                fi
+                echo "Old Docker container removed."
+              else
+                echo "No existing Docker container named $CONTAINER_NAME found."
+              fi
+            }
+
+            # 检查应用健康状态的函数
+            check_application_health() {
+              local check_url="http://localhost:$APP_PORT"
+              local max_attempts=10  # 最多尝试 60 次 (10 * 5秒 = 50秒)
+              local wait_seconds=5   # 每次尝试间隔 5 秒
+              local attempt=1
+
+              echo "Waiting for Spring Boot application to start and become healthy..."
+              echo "Checking URL: $check_url"
+
+              while [ $attempt -le $max_attempts ]; do
+                echo "Attempt $attempt of $max_attempts: Checking application health..."
+                http_code=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 5 --max-time 10 "$check_url" 2>/dev/null)
+
+                if [[ "$http_code" =~ ^(2|3)[0-9]{2}$ ]]; then
+                  echo "SUCCESS: Application is up and running! (HTTP Status: $http_code)"
+                  return 0
+                else
+                  echo "  Application not yet ready (HTTP Status: $http_code). Waiting $wait_seconds seconds..."
+                  sleep "$wait_seconds"
+                fi
+                attempt=$((attempt + 1))
+              done
+
+              echo "ERROR: Application did not become healthy after $max_attempts attempts ($((max_attempts * wait_seconds)) seconds)."
+              echo "Please check container logs for details: sudo docker logs -f $CONTAINER_NAME"
+              return 1
+            }
+
+            # --- 脚本主流程 ---
+
+            echo "--- Starting Deployment Process ---"
+
+            # 0. 在EC2上登录Docker Hub (即使是公共镜像也推荐，确保拉取限额和一致性)
+            # 这里的 DOCKER_USERNAME 和 DOCKER_PASSWORD 需要在 EC2 上的 Secrets 中存在，或者由 Actions 的 env 传递
+            # 因为 appleboy/ssh-action 的 with.env 传递的是 key-value 对，这里可以这样直接使用
+            echo "Attempting Docker login on EC2..."
+            # 使用 secrets.DOCKER_PASSWORD 会直接传递字符串，确保引号包裹
+            echo "${{ secrets.DOCKER_PASSWORD }}" | sudo docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin || {
+              echo "ERROR: Docker login on EC2 failed. Aborting deployment."
+              exit 1
+            }
+            echo "Docker login on EC2 successful."
+
+
+            # 1. 参数存在性检查 (现在这些变量从 with.env 传入，不需要在脚本中再次定义)
+            echo "Checking critical environment variables..."
+            # 这里的变量名和 Dockerfile/Spring Boot 应用中的配置保持一致
+            check_env_var UCSD_REG_DB_URL
+            check_env_var UCSD_REG_DB_USER
+            check_env_var UCSD_REG_DB_PASSWORD
+            check_env_var DOCKER_IMAGE_NAME_REMOTE # 检查从 GitHub Actions env 传过来的镜像名
+            check_env_var DOCKER_IMAGE_TAG_REMOTE  # 检查从 GitHub Actions env 传过来的镜像标签
+            echo "All required environment variables are set."
+
+
+            # 2. 停止并移除旧的 Docker 容器
+            stop_and_remove_old_container
+
+            # 3. 拉取最新的 Docker 镜像
+            echo "Pulling the latest Docker image: ${DOCKER_IMAGE_NAME_REMOTE}:${DOCKER_IMAGE_TAG_REMOTE}..."
+            sudo docker pull "${DOCKER_IMAGE_NAME_REMOTE}:${DOCKER_IMAGE_TAG_REMOTE}" || {
+              echo "ERROR: Failed to pull Docker image. Aborting deployment."
+              exit 1
+            }
+
+            # 4. 运行 Docker 容器
+            echo "Starting Spring Boot application using Docker image..."
+            CONTAINER_ID=$(sudo docker run -d \
+              -p "$APP_PORT:$APP_PORT" \
+              --name "$CONTAINER_NAME" \
+              -e SPRING_DATASOURCE_URL="$UCSD_REG_DB_URL" \
+              -e SPRING_DATASOURCE_USERNAME="$UCSD_REG_DB_USER" \
+              -e SPRING_DATASOURCE_PASSWORD="$UCSD_REG_DB_PASSWORD" \
+              "${DOCKER_IMAGE_NAME_REMOTE}:${DOCKER_IMAGE_TAG_REMOTE}")
+
+            if [ $? -ne 0 ]; then
+              echo "ERROR: Failed to start Docker container '$CONTAINER_NAME'. Aborting deployment."
+              exit 1
+            fi
+            echo "Docker container '$CONTAINER_NAME' (ID: $CONTAINER_ID) started."
+
+            # 5. 等待应用启动并进行健康检查
+            if ! check_application_health; then
+              echo "FATAL: Application health check failed. Deployment aborted."
+              exit 1
+            fi
+
+            # 6. 可选：清理旧的、未使用的 Docker 镜像，释放磁盘空间
+            echo "Cleaning up old Docker images..."
+            sudo docker image prune -f || true # 允许失败，不中断工作流
+            echo "Docker image cleanup complete."
+
+            echo "--- Deployment Completed Successfully! ---"
+            echo "Application should now be accessible at http://<Your_EC2_IP_Address>:$APP_PORT"
+            echo "To view container logs: sudo docker logs -f $CONTAINER_NAME"
+            echo "To stop the container: sudo docker stop $CONTAINER_NAME"
