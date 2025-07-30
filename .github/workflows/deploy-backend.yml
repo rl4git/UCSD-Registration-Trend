@@ -1,0 +1,68 @@
+name: Deploy Spring Boot Backend # 工作流名称，会在 GitHub Actions 页面显示
+
+on:
+  push:
+    branches:
+      - main # 当代码推送到 'main' 分支时触发此工作流
+    paths:
+      - "backend/web-backend-java-maven/**" # 仅当此路径下的文件发生变化时才触发
+  workflow_dispatch: # 允许手动从 GitHub Actions 页面触发此工作流
+
+env:
+  # 定义一些环境变量，方便在工作流中重复使用
+  JAVA_VERSION: "17" # 你的项目使用的 Java 版本
+  DOCKER_IMAGE_NAME: cucucucu4docker/ucsd-web-backend # Docker Hub 上的镜像名称（你的Docker ID/仓库名）
+  DOCKER_IMAGE_TAG: latest # 镜像标签
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest # 在最新的 Ubuntu 虚拟机上运行此作业
+
+    steps:
+      - name: Checkout code # 步骤1: 拉取代码
+        uses: actions/checkout@v4
+
+      - name: Set up Java # 步骤2: 设置 Java 环境
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: "temurin" # 推荐使用 Temurin OpenJDK
+
+      - name: Build Spring Boot JAR # 步骤3: 构建 Spring Boot JAR 包
+        # 你的 Spring Boot 项目的 pom.xml 所在路径
+        # 假设你的项目结构是 repository_root/backend/web-backend-java-maven/pom.xml
+        run: |
+          cd backend/web-backend-java-maven
+          mvn clean package -DskipTests
+        # 注意: 这里的 mvn package 会在 backend/web-backend-java-maven/target/ 生成 JAR 包
+
+      - name: Docker Login # 步骤4: 登录 Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }} # GitHub Secrets 中存储的 Docker Hub 用户名
+          password: ${{ secrets.DOCKER_PASSWORD }} # GitHub Secrets 中存储的 Docker Hub 密码
+
+      - name: Build and push Docker image # 步骤5: 构建并推送 Docker 镜像
+        run: |
+          # 切换到 Dockerfile 所在的目录 (与 JAR 包同级)
+          cd backend/web-backend-java-maven
+          # 构建 Docker 镜像，并打上标签
+          docker build -t ${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }} .
+          # 推送镜像到 Docker Hub
+          docker push ${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }}
+
+      - name: Deploy to EC2 # 步骤6: 部署到 EC2 服务器
+        uses: appleboy/ssh-action@master # 使用一个成熟的 SSH Action 来连接和执行命令
+        with:
+          host: ${{ secrets.EC2_HOST }} # EC2 服务器的 IP 地址或域名
+          username: ${{ secrets.EC2_USERNAME }} # EC2 服务器的 SSH 用户名 (如 'ubuntu')
+          key: ${{ secrets.EC2_SSH_KEY }} # EC2 服务器的 SSH 私钥 (部署密钥)
+          script: |
+            # 切换到 deploy.sh 脚本所在的目录
+            cd /project/ucsd-web-backend/ # 确保这个路径在你的EC2上是正确的
+            # 执行部署脚本，并将数据库凭据作为环境变量传递给脚本
+            # 这些环境变量会被 deploy.sh 中的 docker run 命令接收
+            UCSD_REG_DB_URL="${{ secrets.DB_URL }}" \
+            UCSD_REG_DB_USER="${{ secrets.DB_USER }}" \
+            UCSD_REG_DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
+            sudo ./deploy.sh
