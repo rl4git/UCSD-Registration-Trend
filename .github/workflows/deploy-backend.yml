@@ -53,22 +53,35 @@ jobs:
           docker build -t ${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }} .
           docker push ${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }}
 
-      - name: Deploy to EC2 # 步骤6: 部署到 EC2 服务器 - 所有逻辑都在这里
-        uses: appleboy/ssh-action@master # 使用 SSH Action 连接 EC2
+      - name: Deploy to EC2 # 步骤6: 部署到 EC2 服务器
+        uses: appleboy/ssh-action@master # 建议固定版本，例如 @v1.0.3
         with:
-          host: ${{ secrets.EC2_HOST }} # EC2 服务器的 IP 地址或域名
-          username: ${{ secrets.EC2_USERNAME }} # EC2 服务器的 SSH 用户名
-          key: ${{ secrets.EC2_SSH_KEY }} # EC2 服务器的 SSH 私钥
-          # 使用 env 参数传递环境变量给远程脚本环境
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          # 使用 env 参数将所有需要的 secrets 和 variables 传递给远程环境
           env:
+            # 将 secrets 作为环境变量传递
+            DOCKER_USER: ${{ secrets.DOCKER_USERNAME }}
+            DOCKER_PASS: ${{ secrets.DOCKER_PASSWORD }}
             UCSD_REG_DB_URL: ${{ secrets.DB_URL }}
             UCSD_REG_DB_USER: ${{ secrets.DB_USER }}
             UCSD_REG_DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-            # 将DOCKER_IMAGE_NAME和DOCKER_IMAGE_TAG也传给远程，确保一致性
+            # 传递其他变量
             DOCKER_IMAGE_NAME_REMOTE: ${{ env.DOCKER_IMAGE_NAME }}
             DOCKER_IMAGE_TAG_REMOTE: ${{ env.DOCKER_IMAGE_TAG }}
           script: |
             #!/bin/bash
+            # --- 主流程 ---
+
+            # 0. 在EC2上登录Docker Hub (使用从 `with.env` 传递过来的环境变量)
+            echo "Attempting Docker login on EC2..."
+            echo "$DOCKER_PASS" | sudo docker login -u "$DOCKER_USER" --password-stdin || {
+              echo "ERROR: Docker login on EC2 failed. Aborting deployment."
+              exit 1
+            }
+            echo "Docker login on EC2 successful."
+
             # 将整个 deploy.sh 的内容粘贴到这里
             # 注意：这里的环境变量 (UCSD_REG_DB_URL, DOCKER_IMAGE_NAME_REMOTE等) 将由 `appleboy/ssh-action` 的 `env` 传递
 
@@ -138,18 +151,6 @@ jobs:
             # --- 脚本主流程 ---
 
             echo "--- Starting Deployment Process ---"
-
-            # 0. 在EC2上登录Docker Hub (即使是公共镜像也推荐，确保拉取限额和一致性)
-            # 这里的 DOCKER_USERNAME 和 DOCKER_PASSWORD 需要在 EC2 上的 Secrets 中存在，或者由 Actions 的 env 传递
-            # 因为 appleboy/ssh-action 的 with.env 传递的是 key-value 对，这里可以这样直接使用
-            echo "Attempting Docker login on EC2..."
-            # 使用 secrets.DOCKER_PASSWORD 会直接传递字符串，确保引号包裹
-            echo "${{ secrets.DOCKER_PASSWORD }}" | sudo docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin || {
-              echo "ERROR: Docker login on EC2 failed. Aborting deployment."
-              exit 1
-            }
-            echo "Docker login on EC2 successful."
-
 
             # 1. 参数存在性检查 (现在这些变量从 with.env 传入，不需要在脚本中再次定义)
             echo "Checking critical environment variables..."
