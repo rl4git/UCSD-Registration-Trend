@@ -53,42 +53,35 @@ jobs:
           docker build -t ${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }} .
           docker push ${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }}
 
-      - name: Deploy to EC2 # 步骤6: 部署到 EC2 服务器
-        uses: appleboy/ssh-action@master # 建议固定版本，例如 @v1.0.3
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          # 使用 env 参数将所有需要的 secrets 和 variables 传递给远程环境
           env:
-            # 将 secrets 作为环境变量传递
             DOCKER_USER: ${{ secrets.DOCKER_USERNAME }}
             DOCKER_PASS: ${{ secrets.DOCKER_PASSWORD }}
             UCSD_REG_DB_URL: ${{ secrets.DB_URL }}
             UCSD_REG_DB_USER: ${{ secrets.DB_USER }}
             UCSD_REG_DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-            # 传递其他变量
             DOCKER_IMAGE_NAME_REMOTE: ${{ env.DOCKER_IMAGE_NAME }}
             DOCKER_IMAGE_TAG_REMOTE: ${{ env.DOCKER_IMAGE_TAG }}
           script: |
             #!/bin/bash
             # --- 主流程 ---
 
-            # 0. 在EC2上登录Docker Hub (使用从 `with.env` 传递过来的环境变量)
-            echo "Attempting Docker login on EC2..."
+            # 0. 在 EC2 上登录 Docker Hub
+            echo "尝试在 EC2 上登录 Docker Hub..."
             echo "$DOCKER_PASS" | sudo docker login -u "$DOCKER_USER" --password-stdin || {
-              echo "ERROR: Docker login on EC2 failed. Aborting deployment."
+              echo "错误：EC2 上 Docker 登录失败，终止部署。"
               exit 1
             }
-            echo "Docker login on EC2 successful."
-
-            # 将整个 deploy.sh 的内容粘贴到这里
-            # 注意：这里的环境变量 (UCSD_REG_DB_URL, DOCKER_IMAGE_NAME_REMOTE等) 将由 `appleboy/ssh-action` 的 `env` 传递
+            echo "EC2 上 Docker 登录成功。"
 
             # --- 配置 ---
             APP_PORT=8080
             CONTAINER_NAME="ucsd-web-backend-container"
-            # Docker Hub 镜像信息将从外部 env 传入 DOCKER_IMAGE_NAME_REMOTE 和 DOCKER_IMAGE_TAG_REMOTE
 
             # --- 函数定义 ---
 
@@ -96,85 +89,82 @@ jobs:
             check_env_var() {
               local var_name="$1"
               if [ -z "${!var_name}" ]; then
-                echo "ERROR: Environment variable '$var_name' is not set."
+                echo "错误：环境变量 '$var_name' 未设置。"
                 exit 1
               fi
             }
 
-            # 停止并移除旧容器的函数
+            # 停止并移除旧容器
             stop_and_remove_old_container() {
-              echo "Checking for existing Docker container named $CONTAINER_NAME..."
+              echo "检查是否存在名为 $CONTAINER_NAME 的 Docker 容器..."
               if sudo docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
-                echo "Found existing Docker container $CONTAINER_NAME. Stopping and removing it..."
-                # 尝试优雅停止，给应用30秒时间关闭
+                echo "发现现有 Docker 容器 $CONTAINER_NAME，正在停止并移除..."
                 if ! sudo docker stop -t 30 "$CONTAINER_NAME"; then
-                  echo "WARN: Container $CONTAINER_NAME did not stop gracefully. Forcing removal..."
+                  echo "警告：容器 $CONTAINER_NAME 未优雅停止，强制移除..."
                   sudo docker rm -f "$CONTAINER_NAME"
                 else
                   sudo docker rm "$CONTAINER_NAME"
                 fi
-                echo "Old Docker container removed."
+                echo "旧 Docker 容器已移除。"
               else
-                echo "No existing Docker container named $CONTAINER_NAME found."
+                echo "未找到名为 $CONTAINER_NAME 的 Docker 容器。"
               fi
             }
 
-            # 检查应用健康状态的函数
+            # 检查应用健康状态
             check_application_health() {
               local check_url="http://localhost:$APP_PORT"
-              local max_attempts=10  # 最多尝试 60 次 (10 * 5秒 = 50秒)
-              local wait_seconds=5   # 每次尝试间隔 5 秒
+              local max_attempts=10  # 最多尝试 10 次（10 * 5秒 = 50秒）
+              local wait_seconds=5   # 每次尝试间隔 5 秒
               local attempt=1
 
-              echo "Waiting for Spring Boot application to start and become healthy..."
-              echo "Checking URL: $check_url"
+              echo "等待 Spring Boot 应用启动并健康..."
+              echo "检查 URL：$check_url"
 
               while [ $attempt -le $max_attempts ]; do
-                echo "Attempt $attempt of $max_attempts: Checking application health..."
+                echo "第 $attempt 次尝试（共 $max_attempts 次）：检查应用健康状态..."
                 http_code=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 5 --max-time 10 "$check_url" 2>/dev/null)
 
                 if [[ "$http_code" =~ ^(2|3)[0-9]{2}$ ]]; then
-                  echo "SUCCESS: Application is up and running! (HTTP Status: $http_code)"
+                  echo "成功：应用已启动并运行！（HTTP 状态：$http_code）"
                   return 0
                 else
-                  echo "  Application not yet ready (HTTP Status: $http_code). Waiting $wait_seconds seconds..."
+                  echo "应用尚未准备好（HTTP 状态：$http_code），等待 $wait_seconds 秒..."
                   sleep "$wait_seconds"
                 fi
                 attempt=$((attempt + 1))
               done
 
-              echo "ERROR: Application did not become healthy after $max_attempts attempts ($((max_attempts * wait_seconds)) seconds)."
-              echo "Please check container logs for details: sudo docker logs -f $CONTAINER_NAME"
+              echo "错误：应用在 $max_attempts 次尝试（$((max_attempts * wait_seconds)) 秒）后未健康。"
+              echo "请检查容器日志：sudo docker logs -f $CONTAINER_NAME"
               return 1
             }
 
             # --- 脚本主流程 ---
 
-            echo "--- Starting Deployment Process ---"
+            echo "--- 开始部署流程 ---"
 
-            # 1. 参数存在性检查 (现在这些变量从 with.env 传入，不需要在脚本中再次定义)
-            echo "Checking critical environment variables..."
-            # 这里的变量名和 Dockerfile/Spring Boot 应用中的配置保持一致
+            # 1. 检查关键环境变量
+            echo "检查关键环境变量..."
             check_env_var UCSD_REG_DB_URL
             check_env_var UCSD_REG_DB_USER
             check_env_var UCSD_REG_DB_PASSWORD
-            check_env_var DOCKER_IMAGE_NAME_REMOTE # 检查从 GitHub Actions env 传过来的镜像名
-            check_env_var DOCKER_IMAGE_TAG_REMOTE  # 检查从 GitHub Actions env 传过来的镜像标签
-            echo "All required environment variables are set."
+            check_env_var DOCKER_IMAGE_NAME_REMOTE
+            check_env_var DOCKER_IMAGE_TAG_REMOTE
+            echo "所有必需环境变量已设置。"
 
-
-            # 2. 停止并移除旧的 Docker 容器
+            # 2. 停止并移除旧容器
             stop_and_remove_old_container
 
-            # 3. 拉取最新的 Docker 镜像
-            echo "Pulling the latest Docker image: ${DOCKER_IMAGE_NAME_REMOTE}:${DOCKER_IMAGE_TAG_REMOTE}..."
+            # 3. 拉取最新 Docker 镜像
+            echo "拉取最新 Docker 镜像：${DOCKER_IMAGE_NAME_REMOTE}:${DOCKER_IMAGE_TAG_REMOTE}..."
             sudo docker pull "${DOCKER_IMAGE_NAME_REMOTE}:${DOCKER_IMAGE_TAG_REMOTE}" || {
-              echo "ERROR: Failed to pull Docker image. Aborting deployment."
+              echo "错误：拉取 Docker 镜像失败，终止部署。"
               exit 1
             }
 
             # 4. 运行 Docker 容器
-            echo "Starting Spring Boot application using Docker image..."
+            echo "使用 Docker 镜像启动 Spring Boot 应用..."
             CONTAINER_ID=$(sudo docker run -d \
               -p "$APP_PORT:$APP_PORT" \
               --name "$CONTAINER_NAME" \
@@ -184,23 +174,23 @@ jobs:
               "${DOCKER_IMAGE_NAME_REMOTE}:${DOCKER_IMAGE_TAG_REMOTE}")
 
             if [ $? -ne 0 ]; then
-              echo "ERROR: Failed to start Docker container '$CONTAINER_NAME'. Aborting deployment."
+              echo "错误：无法启动 Docker 容器 '$CONTAINER_NAME'，终止部署。"
               exit 1
             fi
-            echo "Docker container '$CONTAINER_NAME' (ID: $CONTAINER_ID) started."
+            echo "Docker 容器 '$CONTAINER_NAME'（ID：$CONTAINER_ID）已启动。"
 
             # 5. 等待应用启动并进行健康检查
             if ! check_application_health; then
-              echo "FATAL: Application health check failed. Deployment aborted."
+              echo "致命错误：应用健康检查失败，终止部署。"
               exit 1
             fi
 
-            # 6. 可选：清理旧的、未使用的 Docker 镜像，释放磁盘空间
-            echo "Cleaning up old Docker images..."
-            sudo docker image prune -f || true # 允许失败，不中断工作流
-            echo "Docker image cleanup complete."
+            # 6. 清理旧 Docker 镜像
+            echo "清理旧 Docker 镜像..."
+            sudo docker image prune -f || true
+            echo "Docker 镜像清理完成。"
 
-            echo "--- Deployment Completed Successfully! ---"
-            echo "Application should now be accessible at http://<Your_EC2_IP_Address>:$APP_PORT"
-            echo "To view container logs: sudo docker logs -f $CONTAINER_NAME"
-            echo "To stop the container: sudo docker stop $CONTAINER_NAME"
+            echo "--- 部署成功完成！---"
+            echo "应用应可通过 http://<Your_EC2_IP_Address>:$APP_PORT 访问"
+            echo "查看容器日志：sudo docker logs -f $CONTAINER_NAME"
+            echo "停止容器：sudo docker stop $CONTAINER_NAME"
