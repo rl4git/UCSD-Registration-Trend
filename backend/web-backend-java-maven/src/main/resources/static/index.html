@@ -1,49 +1,87 @@
 <!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ucsd-registration</title>
-    <link rel="stylesheet" href="css/unit-container.css">
-    <link rel="stylesheet" href="css/professor-tabs.css">
-    <link rel="stylesheet" href="css/styles.css">
-</head>
+    <link rel="stylesheet" href="css/unit-container.css" />
+    <link rel="stylesheet" href="css/professor-tabs.css" />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
 
-<header class="page-header">
-    UC San Diego Course Registration Trend
-</header>
+  <header class="page-header">UC San Diego Course Registration Trend</header>
 
-<body>
+  <body>
     <!-- course tab body -->
     <div id="course-tabs-container" class="course-tabs-container"></div>
 
     <!-- Button container for Add Course and Toggle -->
     <div class="button-container">
-        <button id="add-course-btn" onclick="addCourseTab()">Add Course</button>
-        <button id="ratio-display-btn" onclick="toggleChartDisplay()">Switch To Numeric Charts</button>
+      <button id="add-course-btn" onclick="addCourseTab()">Add Course</button>
+      <button id="ratio-display-btn" onclick="toggleChartDisplay()">
+        Switch To Numeric Charts
+      </button>
     </div>
 
     <!-- line charts -->
-    <div class="line-chart-container" id="ratio-chart" style="max-width: 1500px; max-height: 800px; height: 600px;">
-        <canvas class="line-chart"></canvas>
+    <div
+      class="line-chart-container"
+      id="ratio-chart"
+      style="max-width: 1500px; max-height: 800px; height: 600px"
+    >
+      <canvas class="line-chart"></canvas>
     </div>
-    <div class="line-chart-container" id="numeric-chart" style="max-width: 1500px; max-height: 800px; height: 600px; display: none;">
-        <canvas class="numeric-chart"></canvas>
+    <div
+      class="line-chart-container"
+      id="numeric-chart"
+      style="max-width: 1500px; max-height: 800px; height: 600px; display: none"
+    >
+      <canvas class="numeric-chart"></canvas>
     </div>
 
-    
     <p class="chart-note">
-        * Values below 0 represent the waitlist count.<br><br>
-        * Ratio chart shows (Available - Waitlist) / Size. Numeric chart shows Available - Waitlist.<br><br>
+      * Data sourced from WI-2024 to SP-2025.<br /><br />
+      * Values below 0 represent the waitlist count.<br /><br />
+      * Ratio chart shows (Available - Waitlist) / Size. Numeric chart shows
+      Available - Waitlist.<br /><br />
+      * For courses taught by the same professor in the same quarter across
+      different years, data has been aggregated and averaged.<br /><br />
+      <i style="color: rgb(118, 58, 9)"
+        >* Apologies for the site downtime due to a server crash. I’m upgrading
+        the website and try to add new features like commenting. I’m stuck on
+        ReactJS but plan to complete these soon. Hope you enjoy the site! 😄</i
+      ><br /><br />
+      <i style="color: gray"
+        >* If you like the website, feel free to suggest features or leave a
+        star at
+        <a href="https://github.com/rl4git/UCSD-Registration-Trend"
+          >our GitHub</a
+        >.<br /><br />* Also, thanks a lot to
+        <a
+          href="https://github.com/UCSD-Historical-Enrollment-Data/UCSDHistEnrollData.git"
+        >
+          data source project</a
+        >, there would be no website without them.</i
+      >
     </p>
 
     <footer class="page-footer">
-        <p>Data Source: <a href="https://github.com/UCSD-Historical-Enrollment-Data/UCSDHistEnrollData.git">UCSD Historical Enrollment Data WI24 ~ FA24</a></p>
-        <p>Want To Check Course-Professor Rating?: <a href="https://set.ucsd.edu/">UCSD SETs</a> / <a href="https://cape.ucsd.edu/">UCSD CAPEs</a> / <a href="https://www.ratemyprofessors.com/">RateMyProfessor</a> </p>
-        <p>Contact Me: contact@ucsdregistration.com</p>
+      <p>
+        Data Source:
+        <a
+          href="https://github.com/UCSD-Historical-Enrollment-Data/UCSDHistEnrollData.git"
+          >UCSD Historical Enrollment Data WI24 ~ FA24</a
+        >
+      </p>
+      <p>
+        Want To Check Course-Professor Rating?:
+        <a href="https://set.ucsd.edu/">UCSD SETs</a> /
+        <a href="https://cape.ucsd.edu/">UCSD CAPEs</a> /
+        <a href="https://www.ratemyprofessors.com/">RateMyProfessor</a>
+      </p>
+      <p>Contact Me: contact@ucsdregistration.com</p>
     </footer>
-    
 
     <!-- Load Chart.js first -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -56,5 +94,5 @@
     <script src="js/courseTab.js"></script>
     <!-- Then load script.js for general functions -->
     <script src="js/script.js"></script>
-</body>
+  </body>
 </html>

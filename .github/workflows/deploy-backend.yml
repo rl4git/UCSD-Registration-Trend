@@ -45,19 +45,17 @@ jobs:
           docker push ${{ env.DOCKER_IMAGE_NAME }}:${{ env.DOCKER_IMAGE_TAG }}
 
       - name: Deploy to EC2 # 部署阶段
-        uses: appleboy/ssh-action@master # 使用 SSH Action 连接 EC2
+        uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
+          # 使用与 deploy.sh 期望的变量名完全相同的名称
+          env:
+            UCSD_REG_DB_URL: ${{ secrets.DB_URL }}
+            UCSD_REG_DB_USER: ${{ secrets.DB_USER }}
+            UCSD_REG_DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           script: |
-            # 切换到 deploy.sh 脚本所在的目录
             cd /home/ubuntu/projects/ucsd-web-backend/
-            # 执行 deploy.sh 脚本，并通过环境变量传入数据库凭据
-            # 这里的 Secret 名称 (secrets.DB_URL, secrets.DB_USER, secrets.DB_PASSWORD)
-            # 必须与你在 GitHub 仓库中创建的 Secret 名称完全一致
-            # 脚本内部会接收这些同名的环境变量
-            UCSD_REG_DB_URL="${{ secrets.DB_URL }}" \
-            UCSD_REG_DB_USER="${{ secrets.DB_USER }}" \
-            UCSD_REG_DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
+            # 直接执行脚本，ssh-action 会确保 sudo 也能访问到这些变量
             sudo ./deploy.sh
