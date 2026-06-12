@@ -32,10 +32,11 @@ While taking COGS-108, I came across a dataset that tracks course enrollment act
 ## 🧠 Tech Stack
 
 - **Data Cleaning**: Azure Databricks with PySpark
-- **Backend**: Spring Boot with Restful API deployed on AWS EC2
-- **Frontend**: ReactJS
-- **Database**: MySQL database deployed on AWS RDS
-- **Deployment**: AWS S3, AWS RDS, AWS EC2, Nginx, Cloudflare
+- **Current Runtime**: Static HTML, CSS, JavaScript, and pre-generated JSON files
+- **Frontend**: Vanilla HTML/CSS/JS in `old_frontend/public`
+- **Static Data Generation**: Python script that converts cleaned CSV tables into course JSON files
+- **Legacy Backend**: Spring Boot + MySQL code is kept for reference and learning
+- **Recommended Deployment**: Cloudflare Pages or GitHub Pages
 
 ---
 
@@ -45,7 +46,17 @@ While taking COGS-108, I came across a dataset that tracks course enrollment act
 - **[data](./data)**: Python notebooks and scripts for data cleaning and analysis. Also includes automation scripts that upload cleaned data to the RDS database.
 - **[backend](./backend)**: Backend source code built with Spring Boot and Maven.
 - **[frontend](./frontend)**: Modern frontend implementation using ReactJS.
-- **[old frontend](./old_frontend)**: The original version of the frontend using vanilla HTML, CSS, and JS. Kept for reference purposes only.
+- **[old frontend](./old_frontend)**: The currently deployed frontend using vanilla HTML, CSS, JS, and generated static JSON data.
+
+### Static Site Data
+
+The current low-cost deployment path does not require EC2, RDS, Spring Boot, or a live API server. Generate static course JSON files with:
+
+```bash
+python data/generate_static_course_data.py
+```
+
+This writes course-level JSON files into `old_frontend/public/data/courses/`, which the frontend loads directly.
 
 ---
 

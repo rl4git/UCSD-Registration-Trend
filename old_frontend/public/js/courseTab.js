@@ -2,6 +2,14 @@ const colorSelector = new ColorSelector();
 const alreadyFetchedCoursesDepartmentId = [];
 const courseCache = {};
 
+function courseFileKey(department, courseId) {
+  return `${department}_${courseId}`
+    .toUpperCase()
+    .trim()
+    .replace(/[^A-Z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+}
+
 class CourseTab {
   constructor() {
     // store the courses from fetch
@@ -105,10 +113,7 @@ class CourseTab {
       return;
     }
 
-    const url = `https://ucsdregistration.com/courses/${encodeURIComponent(
-      department
-    )}%20${encodeURIComponent(courseId)}`;
-    // const url = `http://localhost:7000/courses/${encodeURIComponent(department)}%20${encodeURIComponent(courseId)}`;
+    const url = `data/courses/${courseFileKey(department, courseId)}.json`;
 
     const cacheKey = `${department}-${courseId}`;
 
@@ -135,6 +140,7 @@ class CourseTab {
 
     fetch(url)
       .then((response) => {
+        if (response.status === 404) return [];
         if (!response.ok) throw new Error("Network response was not ok");
         return response.json();
       })
